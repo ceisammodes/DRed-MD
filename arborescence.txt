@@ -1,0 +1,22 @@
+.
+├── .git
+├── .gitattributes
+├── .gitignore
+├── LICENSE
+├── README.md
+├── arborescence.txt
+├── docs
+│   └── README.txt
+├── requirements.txt
+├── src
+│   ├── sample_and_ens
+│   ├── scripts
+│   ├── scripts_reduce_dyn
+│   └── transformers
+├── templates
+│   ├── molcas_dyn_input.template
+│   └── sub_array.slurm
+└── tests
+    ├── Cr_CO4_bpy
+    └── trans_AZM
+

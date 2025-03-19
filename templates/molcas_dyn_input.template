@@ -1,0 +1,51 @@
+>>> COPY $CurrDir/velocity_{tno}.xyz $Project.velocity.xyz
+
+&GATEWAY
+  Coord = $CurrDir/geom_{tno}.xyz
+  Basis = 6-31g*
+  Group = NoSymm
+  RICD
+
+&SEWARD
+
+&RASSCF
+  FileOrb = $CurrDir/../OG_CASSCF.RasOrb
+  Spin = 1
+  Nactel = 6 0 0
+  Inactive = 13
+  Ras2 = 4
+  CiRoot = 2 2 1
+  mdrlxr = 2
+
+>>> FOREACH ITER in (1..{steps})
+
+  &SEWARD
+
+  &RASSCF
+    H5CI
+    FileOrb = $Project.rasscf.h5
+    Spin = 1
+    Nactel = 6 0 0
+    Inactive = 13
+    Ras2 = 4
+    CiRoot = 2 2 1
+    mdrlxr = 2
+
+  &SURFACEHOP
+    Tully
+    decoherence = 0.1
+    iseed = {tno}
+
+  &ALASKA
+
+  &DYNAMIX
+    VELV
+    dt = 20.0
+    velocities = 1
+    {red}
+
+  >>> COPY $Project.JobIph.Old $CurrDir/$Project.JobIph.Old
+  >>> COPY $Project.dyn.h5 $CurrDir/$Project.dyn.h5Last
+  >>> COPY $Project.rasscf.h5 $CurrDir/$Project.rasscf.h5Last
+	
+>>> END DO
