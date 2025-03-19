@@ -146,4 +146,6 @@ cython_debug/
 
 # Test folders
 tests/*
+tests_100325/*
+tests.tar.gz
 

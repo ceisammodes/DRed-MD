@@ -119,6 +119,43 @@ def get_data_and_masses_from_file(file: str) -> Tuple[np.array, np.array]:
     return data, masses
 
 
+def get_data_masses_and_geom_from_file(file: str) -> Tuple[np.array, np.array, np.array]:
+    """
+    Get the coordinates/forces/velocities and masses from a file given by Molcas.
+
+    Args:
+        file (str): Path to the Molcas output file containing data sections.
+
+    Returns:
+        Tuple[np.array, np.array]: A tuple containing:
+            - data (np.array): A 2D NumPy array of shape (N,3) where N is the number of atoms,
+              representing the coordinates, forces, or velocities.
+            - masses (np.array): A 2D NumPy array of shape (N,1) where N is the number of atoms,
+              representing the atomic masses.
+            - geom (np.array): A 2D NumPy array of shape (N,3) where N is the number of atoms,
+              representing the coordinates.
+
+    Raises:
+        ValueError: If the file is missing required sections `[DATA]`, `[MASS]` or `[GEOM]`.
+        Exception: For other unexpected issues while reading or processing the file.
+    """
+    with open(file) as fp:
+        lines = fp.readlines()
+
+    data_start = lines.index("[DATA]\n") + 1
+    mass_start = lines.index("[MASS]\n") + 1
+    geom_start = lines.index("[GEOM]\n") + 1
+    atoms = lines[data_start: mass_start - 1]
+
+    data = np.array([line.split() for line in atoms], dtype=float).reshape(len(atoms), 3)
+    masses = np.array(lines[mass_start: geom_start - 1], dtype=float).reshape(-1, 1)
+
+    coord = lines[geom_start:]
+    geom = np.array([line.split() for line in coord], dtype=float).reshape(len(atoms), 3)
+
+    return data, masses, geom
+
+
 def write_to_file(reduced_data: np.array, output: str):
     """Save the new (reduced) data to a file in a specific format for Molcas.
 
@@ -400,7 +437,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Get data and masses from Molcas .red.out file
-    data, masses = get_data_and_masses_from_file(file_from_molcas)
+    # data, masses = get_data_and_masses_from_file(file_from_molcas)
+    data, masses, geom = get_data_masses_and_geom_from_file(file_from_molcas)
 
     # Apply PCA or NM variance
     if method == "pca":
