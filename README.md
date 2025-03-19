@@ -116,7 +116,7 @@ The folder containing all the data needed for this example can be downloaded, as
 
 We assume that a set of full dimensionality dynamics is available because it represents the training set necessary to perform the either the PCA or MNV analyses. This minimal illustrative set comprising nine full dimensionality trajectories (`TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`) can be found in the `tests/trans_AZM/reference_ensemble/` folder.
 
-The first step is the creation of the `ensemble.pickle` file that contains the information about the reference, or, if you want training, set with `create_ensemble.py`. Make sure that the `src/script/` folder, containing the `create_ensemble.py` dependencies, is in the current working directory. Then, with:
+The first step is the creation of the `ensemble.pickle` file that contains the information about the reference (training) set with `create_ensemble.py`. Enter the `reference_ensemble/` folder and make sure that the `src/script/` folder, which contains the `create_ensemble.py` dependencies, is in the current working directory. The `script` folder is initialised to be a package containing all the necessary dependencies. Then, with:
 
 - python create_ensemble.py
 
@@ -178,10 +178,10 @@ The `ensemble.pickle` file is produced and contains information about the refere
         fr.apply_pca(n_comp=dim)
   ```
 
-  In the case of PCA, a file named `PCA_k_comp_nm.pickle` with k the number of selected PCs is obtained. In the previous example, k=18. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with k the number of selected NMs ordered by variance is obtained.
+  In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with k the number of selected NMs ordered by variance is obtained.
 
-All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/trans_AZM/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`.
-Note that in each folder it is necessary to have:
+All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
+Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
 
 - the PCA or NMV `.pickle` file
 - `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`.
@@ -189,7 +189,7 @@ Note that in each folder it is necessary to have:
 In the `.input` file it is possible also to note the `red` keyword in the `&DYNAMIX` module.
 
 Finally, all is ready, happy dynamix!
- 
+
 ## About Us
 
 [The ATTOP team](https://morganevacher.wordpress.com/attop-project-members/)
