@@ -298,6 +298,9 @@ def reduce_geoms(pickle_file: str):
             file.write("[MASS]\n")
             for val in masses:
                 file.write(str(val) + "\n")
+            file.write("[GEOM]\n")
+            for c in coord:
+                file.write(" ".join(str(x) for x in c) + "\n")
 
         # Transform data
         os.system(f"python transformer.py {red_in} red.out pca geom {pickle_file}")
@@ -347,6 +350,10 @@ def reduce_velocities(pickle_file):
             file.write("[MASS]\n")
             for val in masses:
                 file.write(str(val) + "\n")
+            # The following is not the [GEOM] but the velocity
+            file.write("[GEOM]\n") 
+            for c in coord:
+                file.write(" ".join(str(x) for x in c) + "\n")
 
         # Transform data
         os.system(f"python transformer.py {red_in} red.out pca vel {pickle_file}")
@@ -358,7 +365,7 @@ def reduce_velocities(pickle_file):
         new_coord = np.asarray(read_red_file(red_out))
 
         # New velocity file
-        np.savetxt(vel.replace("vel_", "red_vel_"), new_coord)
+        np.savetxt(vel.replace("velocity_", "red_velocity_"), new_coord)
 
         # Delete <red.in>, <red.out> and <coms_data.json>
         vel_directory = os.path.dirname(vel)
