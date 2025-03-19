@@ -112,7 +112,7 @@ Finally, after the `.pickle` file containg information regarding the PCA or the 
 
 We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
-The folder containing all the data needed for this example can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GKKFncrTMRGASjt/download/tests_100325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`.
+The folder containing all the data needed for this example can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/RAPT83YFHzcHJGS/download/tests_190325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`.
 
 We assume that a set of full dimensionality dynamics is available because it represents the training set necessary to perform the either the PCA or MNV analyses. This minimal illustrative set comprising nine full dimensionality trajectories (`TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`) can be found in the `tests/trans_AZM/reference_ensemble/` folder.
 
