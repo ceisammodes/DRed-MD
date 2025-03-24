@@ -7,7 +7,7 @@
   - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the reduction of the initial conditions in order to start the dynamics in reduced dimensionality.
   - **transformers**: This directory contains the Python script dedicated to the reduction of dimensions using OpenMolcas.
 - **templates**: This directory contains some template of OpenMolcas input files and `slurm` submission files for the Jean Zay supercomputer (installed at IDRIS, a national computing centre for the CNRS).
-- Some examples of dynamics run in reduced dymensionality are available at `https://uncloud.univ-nantes.fr/index.php/apps/files/files/1958632381?dir=/ATTOP-DATA/TESTS_RED_DIM` and accessible to everyone via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GKKFncrTMRGASjt/download/tests_100325.tar.gz`
+- Some examples of dynamics run in reduced dymensionality are available at `https://uncloud.univ-nantes.fr/index.php/apps/files/files/1958632381?dir=/ATTOP-DATA/TESTS_RED_DIM` and accessible to everyone via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/dri734jNR3x9cR6/download/tests_200325.tar.gz`
 
 ## Table of contents:
 
@@ -106,17 +106,28 @@ After the `ensemble.pickle` file is created, it can be read with `nm_variance.py
 # MD in reduced dimensionality
 Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dymensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
-# ***Trans***-to-***cis*** isomerisation of AZM in reduced dimensionality: a test case
+# ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality: a test case
 
 ![Alt text](/docs/1234.png)
 
-We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
+We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of trans-AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
-The folder containing all the data needed for this example can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GKKFncrTMRGASjt/download/tests_100325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`.
+The first step is cloning the repository, for example with `git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git`. In the new `DRed-MD` repository folder the data for running this test are not present but can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/dri734jNR3x9cR6/download/tests_200325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`. To summarise,
+
+```
+git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git
+```
+and enter your username and password if required, and
+```
+cd DRed-MD
+wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/dri734jNR3x9cR6/download/tests_200325.tar.gz
+tar -xvzf tests.tar.gz
+```
+After running these commands, finally you should have access to the `tests/` folder.
 
 We assume that a set of full dimensionality dynamics is available because it represents the training set necessary to perform the either the PCA or MNV analyses. This minimal illustrative set comprising nine full dimensionality trajectories (`TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`) can be found in the `tests/trans_AZM/reference_ensemble/` folder.
 
-The first step is the creation of the `ensemble.pickle` file that contains the information about the reference (training) set with `create_ensemble.py`. Enter the `reference_ensemble/` folder and make sure that the `src/script/` folder, which contains the `create_ensemble.py` dependencies, is in the current working directory. The `script` folder is initialised to be a package containing all the necessary dependencies. Then, with:
+The first step is the creation of the `ensemble.pickle` file that contains the information about the reference (training) set with `create_ensemble.py`. Enter into the `reference_ensemble/` folder and make sure that the `src/script/` folder, which contains the `create_ensemble.py` dependencies, is in the current working directory. The `script` folder is initialised to be a package containing all the necessary dependencies. Then, with:
 
 - python create_ensemble.py
 
@@ -132,7 +143,7 @@ The first step is the creation of the `ensemble.pickle` file that contains the i
   Choose your program: 
   ```
 
-  you are asked which program was used for the full dimensional simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps, and, finally, Insert filekey(s) which should be followed by the root of the molcas input name. In this case is just `molcas_input` (just check in one of the nine folders to confirm it).
+  you are asked which program was used for the full dimensional simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example we will not dive into these functionalities and we can press `Enter` in all the cases. Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is just `molcas_input` (just check in one of the nine folders to confirm it).
 
   ```
   Number of 'TRAJ' folders located: 9
@@ -164,7 +175,7 @@ The `ensemble.pickle` file is produced and contains information about the refere
 
 - python create_PCA.py or python nm_variance.py
   
-  In the `create_PCA.py` script select the number(s) of dimensions for the reduction inside the list in the loop:
+  E.g., in the `create_PCA.py` script select the number(s) of dimensions for the reduction inside the list in the loop:
   ```
   # Create containers with N dimensions
     for dim in [18]:
@@ -178,7 +189,7 @@ The `ensemble.pickle` file is produced and contains information about the refere
         fr.apply_pca(n_comp=dim)
   ```
 
-  In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with k the number of selected NMs ordered by variance is obtained.
+  In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with `k` the number of selected NMs ordered by variance is obtained.
 
 All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
 Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
@@ -186,7 +197,7 @@ Note that in each folder, in order to run in reduced dimensionality, it is neces
 - the PCA or NMV `.pickle` file
 - `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`.
 
-In the `.input` file it is possible also to note the `red` keyword in the `&DYNAMIX` module.
+Note in the `.input` file the `red` keyword in the `&DYNAMIX` module.
 
 Finally, all is ready, happy dynamix!
 
