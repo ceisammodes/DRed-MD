@@ -181,7 +181,7 @@ def proj_along_pcs(pca_pickle, first_pc:int, last_pc: int, traj_data: str):
     
     # Projection
     w = pca_pickle.transform(featurized_data)
-    np.savetxt(w[:, first_pc-1:last_pc].T, header=f"PC{first}-{last} projections")
+    np.savetxt("projections.txt", w[:, first_pc-1:last_pc], header=f"PC{first_pc}-{last_pc} projections")
 
     return None
 
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     parser.add_argument("--eignum", help="Selected PC for --filt option")
     parser.add_argument("-o", "--outname", help="Name of the .xyz output file from --filt")
     
-    parser.add_argument("--proj", help="Projection of an .xyz trajectory onto the selected PCs")
+    parser.add_argument("--proj", action="store_true", help="Projection of an .xyz trajectory onto the selected PCs")
     parser.add_argument("--xyz", help=".xyz trajectory file to project")
     parser.add_argument("--first", help="First eigenvector to consider for the projection")
     parser.add_argument("--last", help="Last eigenvector to consider for the projection")
@@ -249,8 +249,8 @@ if __name__ == "__main__":
     outname = args.outname
     proj = args.proj
     xyz2proj = args.xyz
-    first = args.first
-    last = args.last
+    first_pc = int(args.first)
+    last_pc = int(args.last)
 
     # Check dependencies: --savefig requires --plot
     if args.eignum and not args.filt:
@@ -287,5 +287,5 @@ if __name__ == "__main__":
     # Check dependencies: --proj requires --xyz, --first, --last
     if proj:
         traj_data = "data_saved.csv"
-        proj_along_pcs(pca_pickle, 1, 3, traj_data)
+        proj_along_pcs(pca_pickle, first_pc, last_pc, traj_data)
     
