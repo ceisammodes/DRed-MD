@@ -7,7 +7,7 @@
   - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the reduction of the initial conditions in order to start the dynamics in reduced dimensionality.
   - **transformers**: This directory contains the Python script dedicated to the reduction of dimensions using OpenMolcas.
 - **templates**: This directory contains some template of OpenMolcas input files and `slurm` submission files for the Jean Zay supercomputer (installed at IDRIS, a national computing centre for the CNRS).
-- Some examples of dynamics run in reduced dymensionality are available at `https://uncloud.univ-nantes.fr/index.php/apps/files/files/1958632381?dir=/ATTOP-DATA/TESTS_RED_DIM` and accessible to everyone via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/dri734jNR3x9cR6/download/tests_200325.tar.gz`
+- Some examples of dynamics run in reduced dymensionality are available at `https://uncloud.univ-nantes.fr/index.php/apps/files/files/1958632381?dir=/ATTOP-DATA/TESTS_RED_DIM` and accessible to everyone via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GaJZiibD22PkYxS/download/tests_200325.tar.gz`
 
 ## Table of contents:
 
@@ -112,7 +112,7 @@ Finally, after the `.pickle` file containg information regarding the PCA or the 
 
 We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of trans-AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
-The first step is cloning the repository, for example with `git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git`. In the new `DRed-MD` repository folder the data for running this test are not present but can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/dri734jNR3x9cR6/download/tests_200325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`. To summarise,
+The first step is cloning the repository, for example with `git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git`. In the new `DRed-MD` repository folder the data for running this test are not present but can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GaJZiibD22PkYxS/download/tests_200325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`. To summarise,
 
 ```
 git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git
@@ -120,7 +120,7 @@ git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git
 and enter your username and password if required, and
 ```
 cd DRed-MD
-wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/dri734jNR3x9cR6/download/tests_200325.tar.gz
+wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GaJZiibD22PkYxS/download/tests_200325.tar.gz
 tar -xvzf tests.tar.gz
 ```
 After running these commands, finally you should have access to the `tests/` folder.
