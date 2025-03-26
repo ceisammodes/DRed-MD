@@ -349,8 +349,8 @@ def pickle_load(fname: str) -> Any:
         with open(fname, "rb") as fp:
             data = pickle.load(fp)
         print("Data loaded!\n")
-    except Exception as e:
-        raise Exception(f"{fname}: {e}")
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Make sure to specify the name of the input file with the '-i' flag") from e
 
     return data
 

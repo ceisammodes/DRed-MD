@@ -52,11 +52,48 @@ Main:
 *******************************************************************************
 """
 
-from typing import Tuple, List
 import numpy as np
+import sys
+import os
+import argparse
+
+from typing import Tuple, List
 from sklearn.decomposition import PCA
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+# Add the /src directory to $PATH
+SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 from scripts.utilities import pickle_load, pickle_save
 import scripts.class_TSH as TSH
+
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        prog='nm_variance.py',
+        description='Performs various Normal Mode-related functions on the ensemble.pickle file'
+                    'created by the create_ensemble.py script.',
+        epilog='Don\'t forget to drink water!'
+    )
+
+    parser.add_argument('-i', '--input', type=str, default='ensemble.pickle',
+                        help='name of the input file (default: ensemble.pickle)')
+    parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
+                        help='name of the frequency file (default: freq.output)')
+    parser.add_argument('-o', '--output', type=str, default='nm_variance',
+                        help='name of the output file (default: nm_variance)')
+
+    return parser.parse_args()
+
+
+""" ----------------------------------------------------------------------------------------------------- """
 
 
 def compute_and_sort_variance(data: np.array, print_variance: bool = True) -> List[Tuple[int, float]]:
@@ -133,6 +170,7 @@ def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) 
         Tuple[TSH.NormalModes, np.array]: A tuple containing the NormalModes object and the featurized dataset.
     """
     # Load <ensemble> and <nm> object
+
     ensemble = pickle_load(ens_path)
     nm = TSH.NormalModes(filename=nm_path, nb_atoms=nb_atoms, nb_nm=nb_nm)
 
@@ -144,10 +182,12 @@ def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) 
 
 
 if __name__ == "__main__":
+    args = parse_arguments()
+
     # Create normal modes
     nm, data = create_normal_modes(
-        "../postdoc_data/molecules_data/butyrolactone/full_200_steps/ensemble.pickle",
-        "../molecules_data/butyrolactone/OG_CASSCF.freq.output",
+        args.input,
+        args.freq_file,
         12,
         30,
     )

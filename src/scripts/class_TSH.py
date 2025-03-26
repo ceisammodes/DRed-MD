@@ -222,8 +222,11 @@ class NormalModes:
         self.geom_ref_ang = []
 
         # Open file and save as list of str
-        with open(filename) as fp:
-            self.data = fp.read().splitlines()
+        try:
+            with open(filename) as fp:
+                self.data = fp.read().splitlines()
+        except FileNotFoundError as e:
+            raise FileNotFoundError("Make sure to specify the name of the frequency file using the '-f' flag") from e
 
         # Get <Gaussian> or <Molcas> parser
         if len(get_idx(self.data, "Entering Gaussian System")) != 0:
@@ -231,6 +234,7 @@ class NormalModes:
         elif len(get_idx(self.data, "This copy of MOLCAS")) != 0 or len(get_idx(self.data, "This run of MOLCAS")) != 0:
             freqs, normal_modes = self._parse_Molcas()
         else:
+            # TODO read molden files - much more lightweight and easy to parse
             raise Exception("Only <Gaussian> and <Molcas> frequency files are supported for now.")
 
         # Convert frequencies to Hartree
