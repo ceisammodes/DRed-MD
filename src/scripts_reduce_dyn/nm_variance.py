@@ -170,7 +170,8 @@ def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) 
         Tuple[TSH.NormalModes, np.array]: A tuple containing the NormalModes object and the featurized dataset.
     """
     # Load <ensemble> and <nm> object
-
+    # TODO remove keywords for nb_atoms and nb_nm from create_normal_modes() and NormalModes() after making them
+    # TODO assigned automatically in Gaussian freq files (already implemented for Molcas)
     ensemble = pickle_load(ens_path)
     nm = TSH.NormalModes(filename=nm_path, nb_atoms=nb_atoms, nb_nm=nb_nm)
 
