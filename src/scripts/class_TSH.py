@@ -212,8 +212,8 @@ class NormalModes:
             nb_atoms (int): Number of atoms in the molecule.
             nb_nm (int): Number of normal modes to be considered.
         """
-        self.nb_atoms = nb_atoms
-        self.nb_cart = self.nb_atoms * 3
+        self.nb_atoms = nb_atoms  # TODO automatic assignment for Gaussian freq file
+        self.nb_cart = self.nb_atoms * 3  # TODO automatic assignment or Gaussian freq file
         self.nb_nm = nb_nm
         self.symbols = []
         self.masses = []
@@ -339,8 +339,11 @@ class NormalModes:
         for line in self.data[idx_geom:]:
             if line.strip() == '':
                 self.nb_atoms = nb_atoms
+                self.nb_cart = self.nb_atoms * 3
                 break
             nb_atoms += 1
+
+        print(f"Found {self.nb_atoms} atoms in a Molcas frequency files")
 
         geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
 
@@ -358,12 +361,22 @@ class NormalModes:
         self.masses = np.asarray(masses)
 
         # Read frequencies [cm-1] and normal modes (printed 6 by 6) from output file
-        nm_indices = get_idx(self.data, "Frequency:")[0: ceil(self.nb_nm/6)]
+        nm_indices = get_idx(self.data, "Frequency:")
+        limit_index = get_idx(self.data, 'Principal components of the normal modes')[0]
+        nm_indices = [nm_idx for nm_idx in nm_indices if nm_idx < limit_index]
+
+        nb_nm = 0
         freqs, normal_modes = [], []
         for nm, idx in enumerate(nm_indices):
+            # TODO what should be done about imaginary frequencies?
             freqs.extend([(-float(f[1:]) if f[0] == "i" else float(f)) for f in self.data[idx].split()[1:]])
             num_columns = len(self.data[idx].split()[1:])
+            nb_nm += num_columns
             normal_modes.extend([get_col_array(self.data[idx+5: idx+5+self.nb_cart], 2+n) for n in range(num_columns)])
+
+        self.nb_nm = nb_nm
+        print(f"Found {self.nb_nm} normal modes in a Molcas frequency files")
+
         freqs = np.asarray(freqs)
         normal_modes = np.asarray(normal_modes).reshape((self.nb_nm, self.nb_cart))
 
