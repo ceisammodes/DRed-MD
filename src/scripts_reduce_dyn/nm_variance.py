@@ -87,8 +87,6 @@ def parse_arguments():
                         help='name of the input file (default: ensemble.pickle)')
     parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
                         help='name of the frequency file (default: freq.output)')
-    parser.add_argument('-o', '--output', type=str, default='nm_variance',
-                        help='name of the output file (default: nm_variance)')
 
     return parser.parse_args()
 
@@ -196,6 +194,24 @@ if __name__ == "__main__":
     # Get variance sorted and with index
     variance_sorted_with_index = compute_and_sort_variance(data, print_variance=True)
 
+    print("Enter the number of normal modes to remove")
+    print("You can specify multiple integers to generate multiple files")
+    print("example: 2 4 31\n")
+
+    while True:
+        user_input = input('> ')
+        try:
+            answer = [int(x) for x in user_input.split()]
+
+            if True in [x > len(variance_sorted_with_index) - 1 for x in answer]:
+                raise ValueError
+            else:
+                break
+
+        except ValueError:
+            print("Input only integers lower than the number of normal modes\n")
+            continue
+
     # Remove N lowest normal modes and save container as pickle
-    for to_remove in [2, 4]:
+    for to_remove in answer:
         remove_n_lowest_nm(nm, variance_sorted_with_index, to_remove)
