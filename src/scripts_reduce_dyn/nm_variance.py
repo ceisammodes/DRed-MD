@@ -87,6 +87,8 @@ def parse_arguments():
                         help='name of the input file (default: ensemble.pickle)')
     parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
                         help='name of the frequency file (default: freq.output)')
+    parser.add_argument('-o', '--output', type=str, default='container_var',
+                        help='prefix for output files (default: container_var)')
 
     return parser.parse_args()
 
@@ -152,7 +154,7 @@ def remove_n_lowest_nm(nm: TSH.NormalModes, variance_with_index: np.array, to_re
     pca.to_remove = modes_removed
 
     # Save as pickle file
-    pickle_save(f"container_var_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
+    pickle_save(f"{args.output}_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
 
 
 def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) -> Tuple[TSH.NormalModes, np.array]:
