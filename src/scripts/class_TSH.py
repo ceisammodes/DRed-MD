@@ -333,6 +333,15 @@ class NormalModes:
         """
         # Get symbols and geometry [Angstroms]
         idx_geom = get_idx(self.data, "Cartesian Coordinates")[0] + 4
+
+        # Get number of atoms
+        nb_atoms = 0
+        for line in self.data[idx_geom:]:
+            if line.strip() == '':
+                self.nb_atoms = nb_atoms
+                break
+            nb_atoms += 1
+
         geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
 
         # Get atomic symbols to deduce masses [AMU]
