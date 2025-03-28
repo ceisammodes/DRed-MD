@@ -157,7 +157,7 @@ def remove_n_lowest_nm(nm: TSH.NormalModes, variance_with_index: np.array, to_re
     pickle_save(f"{args.output}_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
 
 
-def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) -> Tuple[TSH.NormalModes, np.array]:
+def create_normal_modes(ens_path: str, nm_path: str) -> Tuple[TSH.NormalModes, np.array]:
     """Creates normal modes for a specified ensemble and returns the normal modes object along with featurized data.
 
     Args:
@@ -170,10 +170,8 @@ def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) 
         Tuple[TSH.NormalModes, np.array]: A tuple containing the NormalModes object and the featurized dataset.
     """
     # Load <ensemble> and <nm> object
-    # TODO remove keywords for nb_atoms and nb_nm from create_normal_modes() and NormalModes() after making them
-    # TODO assigned automatically in Gaussian freq files (already implemented for Molcas)
     ensemble = pickle_load(ens_path)
-    nm = TSH.NormalModes(filename=nm_path, nb_atoms=nb_atoms, nb_nm=nb_nm)
+    nm = TSH.NormalModes(filename=nm_path)
 
     # Create normal modes and create dataframe with pandas
     fr = TSH.FitterReducer(ensemble)
@@ -189,8 +187,6 @@ if __name__ == "__main__":
     nm, data = create_normal_modes(
         args.input,
         args.freq_file,
-        12,
-        30,
     )
 
     # Get variance sorted and with index

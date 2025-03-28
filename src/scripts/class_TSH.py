@@ -204,17 +204,15 @@ class NormalModes:
     """Take a Gaussian or Molcas frequency calculation output file, and create the matrices to convert from
     cartesian [Bohr] to mass-frequency scaled normal modes (as used in vMCG). """
 
-    def __init__(self, filename: str, nb_atoms: int, nb_nm: int):
+    def __init__(self, filename: str):
         """Initialize NormalModes object.
 
         Args:
             filename (str): Path to the Gaussian or Molcas frequency calculation output file.
-            nb_atoms (int): Number of atoms in the molecule.
-            nb_nm (int): Number of normal modes to be considered.
         """
-        self.nb_atoms = nb_atoms  # TODO automatic assignment for Gaussian freq file
-        self.nb_cart = self.nb_atoms * 3  # TODO automatic assignment or Gaussian freq file
-        self.nb_nm = nb_nm
+        self.nb_atoms = None
+        self.nb_cart = None
+        self.nb_nm = None
         self.symbols = []
         self.masses = []
 
@@ -273,6 +271,11 @@ class NormalModes:
         """
         # Get atomic symbols to deduce masses [AMU]
         idx_geom = get_idx(self.data, "Input orientation:")[0] + 5
+
+        # Get number of atoms
+        idx_atoms = get_idx(self.data, 'NAtoms')[0]
+        self.nb_atoms = int(self.data[idx_atoms].split()[1])
+
         self.symbols = get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], 1)
 
         # Add atomic Mass
@@ -293,8 +296,15 @@ class NormalModes:
         freqs = np.zeros(self.nb_nm)
         normal_modes = np.zeros((self.nb_nm, self.nb_cart))
 
+        # Get number of normal modes
+        idx_nm = get_idx(self.data, "Frequencies ---")
+        nb_nm = 0
+        for idx in idx_nm:
+            nb_nm += len(self.data[idx].split()) - 2
+        self.nb_nm = nb_nm
+
         # Normal modes are printed 5 by 5
-        idx_nm = get_idx(self.data, "Frequencies")[0]
+        idx_nm = idx_nm[0]
         for i in range(self.nb_nm//5):
             freqs[i*5: i*5+5] = [float(f) for f in self.data[idx_nm].split()[2:]]
             idx_nm += 5
