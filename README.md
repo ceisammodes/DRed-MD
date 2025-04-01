@@ -43,40 +43,18 @@ pip install -r requirements.txt
 ```
 
 ### Via Docker
-[Docker](https://www.docker.com/) can be used to install DRed-MD in an isolated environment. Depending on your working environment, you might have to execute the commands below with administrator access by prepending each command below with `sudo` and providing user password.
-
-Create an `image` named `<User>/dred-md`:
+[Docker](https://www.docker.com/) can be used to use DRed-MD in an isolated environment. Go into the DRed-MD folder and create an `image` named `<User>/dred-md`:
 ```
 docker build -t <User>/dred-md .
 ```
 
-Then, create a `container` named `test_run` from the above image by typing:
+Then, create a `container` named `test_run`:
 
 ```
-docker run -it --name test_run <User>/dred-md
+docker run -it -v ~/.:/dred-md/ --name test_run <User>/dred-md
 ```
 
-You will now be in the container's filesystem. You can execute scripts in the same way as on the command line. To exit and re-enter the container's filesystem use the commands:
-
-```
-exit
-docker start -i test_run
-```
-
-After having used DRed-MD, the output files will be located within the container. To copy files between your local filesystem and the container, use the command (copying archives such as `.tar` or `.zip` is recommended):
-
-```
-docker cp <Container>:<ContainerPath> <LocalPath>
-docker cp <LocalPath> <Container>:<ContainerPath>
-```
-
-Once all the data was copied back, the container can be deleted using:
-
-```
-docker rm test_run
-```
-
-For more details, execute `docker --help`.
+The DRed-MD directory has has been mounted inside the container. Any changes, such as copying a directory `data` into the DRed-MD directory on your machine, will be accessible within the container under `/dred-md/data`.
 
 # Create Ensemble
 
