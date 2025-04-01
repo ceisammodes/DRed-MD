@@ -15,10 +15,9 @@ RUN /env/bin/pip install --upgrade pip
 
 ENV PATH="/env/bin:$PATH"
 
-COPY src ./src
-COPY requirements.txt ./src/
-COPY templates ./templates
+RUN mkdir /dred-md/
+COPY requirements.txt /dred-md/
 
-RUN /env/bin/pip install -r /src/requirements.txt
+RUN /env/bin/pip install -r /dred-md/requirements.txt
 
-WORKDIR /src
+WORKDIR /dred-md/
