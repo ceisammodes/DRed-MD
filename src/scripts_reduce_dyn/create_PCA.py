@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # Create object containing <cart2nm>, <nm2cart>, and <nm_matrix> matrices
     # TODO: add a functionality that distinguish between only OPT and OPT+FREQ files
-    # bacause if you put below an .output file that is an OPT followed by MCKINLEY
+    # because if you put below an .output file that is an OPT followed by MCKINLEY
     # it will take the very initial geometry and the normal modes of the OPT geometry
     nm = TSH.NormalModes(filename=".output", nb_atoms=10, nb_nm=24)
 

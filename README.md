@@ -97,14 +97,14 @@ represents the molecular data at each timestep.
 
 # Create PCA and NMV containers
 
-## Create PCA - `src/script_reduce_dyn/create_PCA.py`
+## Create PCA - `src/scripts_reduce_dyn/create_PCA.py`
 After the `ensemble.pickle` file is created, it can be read with `create_PCA.py` and PCA can be performed on the full dimensional data set, i.e., the reference data set. The number of principal components (PCs) can be selected directly inside the script. After running `create_PCA.py`, the PCs and all the required information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
-## NM Variance - `src/script_reduce_dyn/nm_variance.py`
+## NM Variance - `src/scripts_reduce_dyn/nm_variance.py`
 After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
 # MD in reduced dimensionality
-Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dymensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
+Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
 # ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality: a test case
 

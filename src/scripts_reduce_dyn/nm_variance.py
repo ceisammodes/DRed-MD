@@ -52,11 +52,48 @@ Main:
 *******************************************************************************
 """
 
-from typing import Tuple, List
 import numpy as np
+import sys
+import os
+import argparse
+
+from typing import Tuple, List
 from sklearn.decomposition import PCA
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+# Add the /src directory to $PATH
+SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 from scripts.utilities import pickle_load, pickle_save
 import scripts.class_TSH as TSH
+
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        prog='nm_variance.py',
+        description='Performs various Normal Mode-related functions on the ensemble.pickle file'
+                    'created by the create_ensemble.py script.',
+        epilog='Don\'t forget to drink water!'
+    )
+
+    parser.add_argument('-i', '--input', type=str, default='ensemble.pickle',
+                        help='name of the input file (default: ensemble.pickle)')
+    parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
+                        help='name of the frequency file (default: freq.output)')
+    parser.add_argument('-o', '--output', type=str, default='container_var',
+                        help='prefix for output files (default: container_var)')
+
+    return parser.parse_args()
+
+
+""" ----------------------------------------------------------------------------------------------------- """
 
 
 def compute_and_sort_variance(data: np.array, print_variance: bool = True) -> List[Tuple[int, float]]:
@@ -117,10 +154,10 @@ def remove_n_lowest_nm(nm: TSH.NormalModes, variance_with_index: np.array, to_re
     pca.to_remove = modes_removed
 
     # Save as pickle file
-    pickle_save(f"container_var_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
+    pickle_save(f"{args.output}_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
 
 
-def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) -> Tuple[TSH.NormalModes, np.array]:
+def create_normal_modes(ens_path: str, nm_path: str) -> Tuple[TSH.NormalModes, np.array]:
     """Creates normal modes for a specified ensemble and returns the normal modes object along with featurized data.
 
     Args:
@@ -134,7 +171,7 @@ def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) 
     """
     # Load <ensemble> and <nm> object
     ensemble = pickle_load(ens_path)
-    nm = TSH.NormalModes(filename=nm_path, nb_atoms=nb_atoms, nb_nm=nb_nm)
+    nm = TSH.NormalModes(filename=nm_path)
 
     # Create normal modes and create dataframe with pandas
     fr = TSH.FitterReducer(ensemble)
@@ -144,17 +181,35 @@ def create_normal_modes(ens_path: str, nm_path: str, nb_atoms: int, nb_nm: int) 
 
 
 if __name__ == "__main__":
+    args = parse_arguments()
+
     # Create normal modes
     nm, data = create_normal_modes(
-        "../postdoc_data/molecules_data/butyrolactone/full_200_steps/ensemble.pickle",
-        "../molecules_data/butyrolactone/OG_CASSCF.freq.output",
-        12,
-        30,
+        args.input,
+        args.freq_file,
     )
 
     # Get variance sorted and with index
     variance_sorted_with_index = compute_and_sort_variance(data, print_variance=True)
 
+    print("Enter the number of normal modes to remove")
+    print("You can specify multiple integers to generate multiple files")
+    print("example: 2 4 31\n")
+
+    while True:
+        user_input = input('> ')
+        try:
+            answer = [int(x) for x in user_input.split()]
+
+            if True in [x > len(variance_sorted_with_index) - 1 for x in answer]:
+                raise ValueError
+            else:
+                break
+
+        except ValueError:
+            print("Input only integers lower than the number of normal modes\n")
+            continue
+
     # Remove N lowest normal modes and save container as pickle
-    for to_remove in [2, 4]:
+    for to_remove in answer:
         remove_n_lowest_nm(nm, variance_sorted_with_index, to_remove)
