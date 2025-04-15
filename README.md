@@ -196,6 +196,7 @@ Note that in each folder, in order to run in reduced dimensionality, it is neces
 
 - the PCA or NMV `.pickle` file
 - `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`.
+- the initial conditions (geometry and velocity)
 
 Note in the `.input` file the `red` keyword in the `&DYNAMIX` module.
 
