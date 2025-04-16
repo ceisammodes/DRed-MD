@@ -1,6 +1,6 @@
 # ***Dynamics in Reduced dimensionality***
 
-![Alt text](/docs/logo.png)
+<img src="/docs/logo.png" width="50" height="50">
 
 # In this repository
 - **docs**: This directory contains the detailed documentation about the collection of programs used for performing surface hopping dynamics in reduced dimensionality.
