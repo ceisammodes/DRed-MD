@@ -1,4 +1,7 @@
 # ***Dynamics in Reduced dimensionality***
+
+<img src="/docs/logo.png" width="500" height="500">
+
 # In this repository
 - **docs**: This directory contains the detailed documentation about the collection of programs used for performing surface hopping dynamics in reduced dimensionality.
 - **src**: This directory contains all the needed modules to perform dynamics in reduced dimensionality.
