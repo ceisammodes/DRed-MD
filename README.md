@@ -183,9 +183,23 @@ All the ingredients necessary to run in reduced dimensionality are ready! In the
 Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
 
 - the PCA or NMV `.pickle` file
-- `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`.
+- `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`
 
-Note in the `.input` file the `red` keyword in the `&DYNAMIX` module.
+in addition to the initial conditions and the input file. Note in the `.input` file the `red` keyword in the `&DYNAMIX` module. The arborescence of the folder in which the reduced dimensionality dynamics will be performed should be:
+```bash
+TRAJX/
+├── geom_X.xyz
+├── velocity_X.xyz
+├── molcas_input_X.dyn.input
+├── PCA_k_comp_nm.pickle
+└── transformer.py
+```
+This folder can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
+
+```
+For the beta-testers:
+I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/. The submission script can be found in templates/sub_array.slurm in this repository
+```
 
 Finally, all is ready, happy dynamix!
 
