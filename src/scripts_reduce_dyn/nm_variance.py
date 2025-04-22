@@ -201,7 +201,7 @@ if __name__ == "__main__":
         try:
             answer = [int(x) for x in user_input.split()]
 
-            if True in [x > len(variance_sorted_with_index) - 1 for x in answer]:
+            if True in [1 > x > nm.nb_nm - 1 for x in answer]:
                 raise ValueError
             else:
                 break
