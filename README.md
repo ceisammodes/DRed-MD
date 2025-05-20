@@ -199,9 +199,47 @@ TRAJX/
 ```
 This folder can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
+***For the beta-testers:
+I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/.
+The submission script can be found in templates/sub_array.slurm in this repository or as follows:***
 ```
-For the beta-testers:
-I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/. The submission script can be found in templates/sub_array.slurm in this repository
+#!/bin/bash
+#SBATCH -t 20:00:00
+#SBATCH -p cpu_p1
+#SBATCH -J "DRed-MD-test-AZM"
+#SBATCH -e slurm-%j.err
+#SBATCH -o slurm-%j.out
+#SBATCH --ntasks=1
+#SBATCH --threads-per-core=2
+#SBATCH --cpus-per-task=4
+#SBATCH --qos=qos_cpu-t3
+#SBATCH --hint=nomultithread
+#SBATCH --array=[1-9]
+
+
+##################### MOLCAS #########################
+
+module purge
+
+export MOLCAS=/linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2
+
+module load anaconda-py3/2021.05
+module load cmake/3.21.3
+module load intel-compilers/19.1.3
+module load intel-mkl/2020.4
+module load hdf5/1.12.0
+
+source /linkhome/rech/gencei01/uqv47eu/.Molcas/molcasrc
+
+export WorkDir=$JOBSCRATCH
+export MOLCAS_NPROCS=$SLURM_NTASKS
+export MOLCAS_MEM=$SLURM_MEM_PER_CPU
+
+export NAME="molcas_input_${SLURM_ARRAY_TASK_ID}"
+
+cd TRAJ${SLURM_ARRAY_TASK_ID}
+
+/linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/pymolcas $NAME.input >& $NAME.output
 ```
 
 Finally, all is ready, happy dynamix!
