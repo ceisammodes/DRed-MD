@@ -356,7 +356,7 @@ class NormalModes:
                     break
                 nb_atoms += 1
 
-            print(f"Found {self.nb_atoms} atoms in the OpenMolcas frequency files")
+            print(f"Found {self.nb_atoms} atoms in the OpenMolcas frequency files.")
             geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
         elif self.filetype == "optmck":
             # Get symbols and geometry [Angstroms] right before MCKINLEY
@@ -370,7 +370,7 @@ class NormalModes:
                     break
                 nb_atoms += 1
 
-            print(f"Found {self.nb_atoms} atoms in the OpenMolcas frequency files")
+            print(f"Found {self.nb_atoms} atoms in the OpenMolcas frequency files.")
             geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n) for n in range(4)]
         else:
             raise Exception("""
