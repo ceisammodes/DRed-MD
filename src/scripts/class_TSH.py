@@ -325,7 +325,7 @@ class NormalModes:
     def _parse_Molcas(self):
         """Parse Molcas output data to extract frequencies and normal modes.
 
-        This function extracts the following information from the Gaussian output data
+        This function extracts the following information from the OpenMolcas output data
         stored in `self.data`:
 
         - Atomic symbols: Extracted from the "Cartesian Coordinates" section to deduce atomic masses.
