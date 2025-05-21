@@ -16,9 +16,11 @@
 
 - [Prerequisites](#Prerequisites)
   - [Installation](#Installation)
-- [Create Ensemble](#Create-Ensemble)
-- [Create PCA and NMV containers](#Create-PCA-and-NMV containers)
-- [MD in reduced dimensionality](#MD-in-reduced dimensionality)
+- [Presentation of the functionalities](#Presentation-of-the-functionalities)
+  - [Create Ensemble](#Create-Ensemble)
+  - [Create PCA and NMV containers](#Create-PCA-and-NMV containers)
+  - [MD in reduced dimensionality](#MD-in-reduced dimensionality)
+- [Example of use](#Example-of-use)
 - [About us](#About-us)
 - [Acknowledgements](#Acknowledgements)
 
@@ -46,44 +48,24 @@ pip install -r requirements.txt
 ```
 
 ### Via Docker
-[Docker](https://www.docker.com/) can be used to install DRed-MD in an isolated environment. Depending on your working environment, you might have to execute the commands below with administrator access by prepending each command below with `sudo` and providing user password.
-
-Create an `image` named `<User>/dred-md`:
+[Docker](https://www.docker.com/) can be used to use DRed-MD in an isolated environment. Go into the DRed-MD folder and create an `image` named `<User>/dred-md`:
 ```
 docker build -t <User>/dred-md .
 ```
 
-Then, create a `container` named `test_run` from the above image by typing:
+Then, create a `container` named `test_run`:
 
 ```
-docker run -it --name test_run <User>/dred-md
+docker run --user $UID:$GID  -it --rm -v $PWD/:/dred-md/ --name test_run <User>/dred-md
 ```
 
-You will now be in the container's filesystem. You can execute scripts in the same way as on the command line. To exit and re-enter the container's filesystem use the commands:
+The DRed-MD directory has has been mounted inside the container. Any changes, such as copying a directory `data` into the DRed-MD directory on your machine, will be accessible within the container under `/dred-md/data`.
 
-```
-exit
-docker start -i test_run
-```
+# Presentation of the functionalities
 
-After having used DRed-MD, the output files will be located within the container. To copy files between your local filesystem and the container, use the command (copying archives such as `.tar` or `.zip` is recommended):
+## Create Ensemble
 
-```
-docker cp <Container>:<ContainerPath> <LocalPath>
-docker cp <LocalPath> <Container>:<ContainerPath>
-```
-
-Once all the data was copied back, the container can be deleted using:
-
-```
-docker rm test_run
-```
-
-For more details, execute `docker --help`.
-
-# Create Ensemble
-
-## Create ens - `src/sample_and_ens/create_ensemble.py`
+### Create ens - `src/sample_and_ens/create_ensemble.py`
 After running Tully Surface Hopping (TSH) trajectories the `create_ensemble.py` script can be used to create an `ensemble` object in the form of a pickle binary file. The `Ensemble` class contains `Trajectory` class for each trajectory in the selected folder, and each Trajectory contains `Frame` classes which 
 represents the molecular data at each timestep.
 
@@ -98,37 +80,43 @@ represents the molecular data at each timestep.
 - active state
 - _etc_
 
-# Create PCA and NMV containers
+## Create PCA and NMV containers
 
-## Create PCA - `src/script_reduce_dyn/create_PCA.py`
+### Create PCA - `src/scripts_reduce_dyn/create_PCA.py`
 After the `ensemble.pickle` file is created, it can be read with `create_PCA.py` and PCA can be performed on the full dimensional data set, i.e., the reference data set. The number of principal components (PCs) can be selected directly inside the script. After running `create_PCA.py`, the PCs and all the required information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
-## NM Variance - `src/script_reduce_dyn/nm_variance.py`
+### NM Variance - `src/scripts_reduce_dyn/nm_variance.py`
 After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
-# MD in reduced dimensionality
-Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dymensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
+## MD in reduced dimensionality
+Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
 # ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality: a test case
 
 ![Alt text](/docs/1234.png)
+
+# Example of use
 
 We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of trans-AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
 The first step is cloning the repository, for example with `git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git`. In the new `DRed-MD` repository folder the data for running this test are not present but can be downloaded, as indicated before, via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GaJZiibD22PkYxS/download/tests_200325.tar.gz` and extracted with `tar -xvzf tests.tar.gz`. To summarise,
 
 ```
-git clone https://gitlab.univ-nantes.fr/modes/attop/DRed-MD.git
+git clone https://gitlab.univ-nantes.fr/modes/public/attop/DRed-MD.git
 ```
-and enter your username and password if required, and
+
 ```
 cd DRed-MD
-wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/GaJZiibD22PkYxS/download/tests_200325.tar.gz
-tar -xvzf tests.tar.gz
+mkdir tests
+cd tests
+wget -O tests.tar.gz wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/r22tTxo9Co6xsnc/download
+tar -xvf tests.tar.gz
 ```
-After running these commands, finally you should have access to the `tests/` folder.
+After running these commands, finally you should have access to the `tests_200325/` folder.
 
-We assume that a set of full dimensionality dynamics is available because it represents the training set necessary to perform the either the PCA or MNV analyses. This minimal illustrative set comprising nine full dimensionality trajectories (`TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`) can be found in the `tests/trans_AZM/reference_ensemble/` folder.
+Actually at this step you can launch your docker container or activate your python virtual environment (see [Installation](#Installation))
+
+We assume that a set of full dimensionality dynamics is available because it represents the training set necessary to perform the either the PCA or MNV analyses. This minimal illustrative set comprising nine full dimensionality trajectories (`TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`) can be found in the `tests_200325/trans_AZM/reference_ensemble/` folder.
 
 The first step is the creation of the `ensemble.pickle` file that contains the information about the reference (training) set with `create_ensemble.py`. Enter into the `reference_ensemble/` folder and make sure that the `src/script/` folder, which contains the `create_ensemble.py` dependencies, is in the current working directory. The `script` folder is initialised to be a package containing all the necessary dependencies. Then, with:
 
@@ -146,7 +134,7 @@ The first step is the creation of the `ensemble.pickle` file that contains the i
   Choose your program: 
   ```
 
-  you are asked which program was used for the full dimensional simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example we will not dive into these functionalities and we can press `Enter` in all the cases. Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is just `molcas_input` (just check in one of the nine folders to confirm it).
+  you are asked which program was used for the full dimensional simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example we will not dive into these functionalities and we can press `Enter` until **Insert filekeys** . Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is just `molcas_input` (just check in one of the nine folders to confirm it).
 
   ```
   Number of 'TRAJ' folders located: 9
@@ -194,7 +182,7 @@ The `ensemble.pickle` file is produced and contains information about the refere
 
   In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with `k` the number of selected NMs ordered by variance is obtained.
 
-All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
+All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_200325/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
 Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
 
 - the PCA or NMV `.pickle` file
@@ -256,10 +244,10 @@ cd TRAJ${SLURM_ARRAY_TASK_ID}
 
 Finally, all is ready, happy dynamix!
 
-## About Us
+# About Us
 
 [The ATTOP team](https://morganevacher.wordpress.com/attop-project-members/)
 
-## Acknowledgements
+# Acknowledgements
 
 Part of the calculations in the project were performed on the Jean Zay supercomputer (http://www.idris.fr/eng/jean-zay/) and the GLiCID cluster (https://doi.org/10.60487/glicid)

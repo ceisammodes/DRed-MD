@@ -150,3 +150,6 @@ tests_190325/*
 tests_200325/
 tests_200325.tar.gz
 tests.tar.gz
+
+# DATA folders
+data/*

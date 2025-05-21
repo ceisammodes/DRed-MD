@@ -204,19 +204,15 @@ class NormalModes:
     """Take a Gaussian or Molcas frequency calculation output file, and create the matrices to convert from
     cartesian [Bohr] to mass-frequency scaled normal modes (as used in vMCG). """
 
-    def __init__(self, filename: str, filetype: str, nb_atoms: int, nb_nm: int):
+    def __init__(self, filename: str):
         """Initialize NormalModes object.
 
         Args:
             filename (str): Path to the Gaussian or Molcas frequency calculation output file.
-            filetype (str): Type of the job in the frequency calculation output file (freq, optfreq) 
-            nb_atoms (int): Number of atoms in the molecule.
-            nb_nm (int): Number of normal modes to be considered.
         """
-        self.filetype = filetype
-        self.nb_atoms = nb_atoms
-        self.nb_cart = self.nb_atoms * 3
-        self.nb_nm = nb_nm
+        self.nb_atoms = None
+        self.nb_cart = None
+        self.nb_nm = None
         self.symbols = []
         self.masses = []
 
@@ -224,8 +220,11 @@ class NormalModes:
         self.geom_ref_ang = []
 
         # Open file and save as list of str
-        with open(filename) as fp:
-            self.data = fp.read().splitlines()
+        try:
+            with open(filename) as fp:
+                self.data = fp.read().splitlines()
+        except FileNotFoundError as e:
+            raise FileNotFoundError("Make sure to specify the name of the frequency file using the '-f' flag") from e
 
         # Get <Gaussian> or <Molcas> parser
         if len(get_idx(self.data, "Entering Gaussian System")) != 0:
@@ -233,6 +232,7 @@ class NormalModes:
         elif len(get_idx(self.data, "This copy of MOLCAS")) != 0 or len(get_idx(self.data, "This run of MOLCAS")) != 0:
             freqs, normal_modes = self._parse_Molcas()
         else:
+            # TODO read molden files - much more lightweight and easy to parse
             raise Exception("Only <Gaussian> and <Molcas> frequency files are supported for now.")
 
         # Convert frequencies to Hartree
@@ -271,6 +271,11 @@ class NormalModes:
         """
         # Get atomic symbols to deduce masses [AMU]
         idx_geom = get_idx(self.data, "Input orientation:")[0] + 5
+
+        # Get number of atoms
+        idx_atoms = get_idx(self.data, 'NAtoms')[0]
+        self.nb_atoms = int(self.data[idx_atoms].split()[1])
+
         self.symbols = get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], 1)
 
         # Add atomic Mass
@@ -291,8 +296,15 @@ class NormalModes:
         freqs = np.zeros(self.nb_nm)
         normal_modes = np.zeros((self.nb_nm, self.nb_cart))
 
+        # Get number of normal modes
+        idx_nm = get_idx(self.data, "Frequencies ---")
+        nb_nm = 0
+        for idx in idx_nm:
+            nb_nm += len(self.data[idx].split()) - 2
+        self.nb_nm = nb_nm
+
         # Normal modes are printed 5 by 5
-        idx_nm = get_idx(self.data, "Frequencies")[0]
+        idx_nm = idx_nm[0]
         for i in range(self.nb_nm//5):
             freqs[i*5: i*5+5] = [float(f) for f in self.data[idx_nm].split()[2:]]
             idx_nm += 5
@@ -329,23 +341,21 @@ class NormalModes:
                                             Shape is (nb_nm, nb_cart), where nb_nm is the number of normal modes
                                             and nb_cart is the number of Cartesian coordinates.
         """
-        # Detecting if the output file contains frequency or optimisation steps and frequencies at the end 
-        if self.filetype == "mckly":
-            # Get symbols and geometry [Angstroms] at the start of the file
-            idx_geom = get_idx(self.data, "Cartesian Coordinates")[0] + 4
-            geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
-        elif self.filetype == "optmck":
-            # Get symbols and geometry [Angstroms] right before MCKINLEY
-            idx_geom = get_idx(self.data, "Nuclear coordinates of the final structure / Angstrom")[0] + 3
-            geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n) for n in range(4)]
-        else:
-            raise Exception("""
-            *** Please specify the type of the <Molcas> output file. ***
+        # Get symbols and geometry [Angstroms]
+        idx_geom = get_idx(self.data, "Cartesian Coordinates")[0] + 4
 
-            Options:
-                [mckly]   for a frequency output file
-                [optmck]  for an optimisation and frequency calculation
-            """)
+        # Get number of atoms
+        nb_atoms = 0
+        for line in self.data[idx_geom:]:
+            if line.strip() == '':
+                self.nb_atoms = nb_atoms
+                self.nb_cart = self.nb_atoms * 3
+                break
+            nb_atoms += 1
+
+        print(f"Found {self.nb_atoms} atoms in a Molcas frequency files")
+
+        geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
 
         # Get atomic symbols to deduce masses [AMU]
         self.symbols = [re.sub(r"\d+", "", s) for s in geom_data[0]]
@@ -361,12 +371,22 @@ class NormalModes:
         self.masses = np.asarray(masses)
 
         # Read frequencies [cm-1] and normal modes (printed 6 by 6) from output file
-        nm_indices = get_idx(self.data, "Frequency:")[0: ceil(self.nb_nm/6)]
+        nm_indices = get_idx(self.data, "Frequency:")
+        limit_index = get_idx(self.data, 'Principal components of the normal modes')[0]
+        nm_indices = [nm_idx for nm_idx in nm_indices if nm_idx < limit_index]
+
+        nb_nm = 0
         freqs, normal_modes = [], []
         for nm, idx in enumerate(nm_indices):
+            # TODO what should be done about imaginary frequencies?
             freqs.extend([(-float(f[1:]) if f[0] == "i" else float(f)) for f in self.data[idx].split()[1:]])
             num_columns = len(self.data[idx].split()[1:])
+            nb_nm += num_columns
             normal_modes.extend([get_col_array(self.data[idx+5: idx+5+self.nb_cart], 2+n) for n in range(num_columns)])
+
+        self.nb_nm = nb_nm
+        print(f"Found {self.nb_nm} normal modes in a Molcas frequency files")
+
         freqs = np.asarray(freqs)
         normal_modes = np.asarray(normal_modes).reshape((self.nb_nm, self.nb_cart))
 

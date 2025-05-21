@@ -27,10 +27,11 @@ object) themselves composed of frames for each timestep (<Frame> object).
 import sys
 import os
 from typing import List
+import argparse
 
 """ ----------------------------------------------------------------------------------------------------- """
 
-# Add the /src directory to $PATH -
+# Add the /src directory to $PATH
 SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 if SRC_DIR not in sys.path:
@@ -40,6 +41,22 @@ import scripts.class_TSH as TSH
 from scripts.utilities import pickle_save
 
 PROGS = {1: "SHARC", 2: "NX", 3: "MOLCAS"}
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        prog='create_ensemble.py',
+        description='Creates an ensemble of all trajectories present in the current directory',
+        epilog='Don\'t forget to drink water!'
+    )
+
+    parser.add_argument('-o', '--output', type=str, default='ensemble.pickle',
+                        help='name of the output file (default: ensemble.pickle)')
+
+    return parser.parse_args()
+
 
 """ ----------------------------------------------------------------------------------------------------- """
 
@@ -131,6 +148,8 @@ def check_timestep_nx(trajs_idx: List):
 
 
 if __name__ == "__main__":
+    args = parse_arguments()
+
     print("\n=====================================================================================================")
     print("                  TSH Ensemble Generation Program (collect data for Post-Processing)                 ")
     print("=====================================================================================================")
@@ -194,5 +213,5 @@ if __name__ == "__main__":
     )
 
     # Save pickled experiment
-    pickle_save("ensemble.pickle", expt)
+    pickle_save(args.output, expt)
     print("=====================================================================================================\n")
