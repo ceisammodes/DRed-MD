@@ -52,10 +52,14 @@ if __name__ == "__main__":
     ensemble = pickle_load("ensemble.pickle")
 
     # Create object containing <cart2nm>, <nm2cart>, and <nm_matrix> matrices
-    # TODO: add a functionality that distinguish between only OPT and OPT+FREQ files
-    # bacause if you put below an .output file that is an OPT followed by MCKINLEY
-    # it will take the very initial geometry and the normal modes of the OPT geometry
-    nm = TSH.NormalModes(filename=".output", nb_atoms=10, nb_nm=24)
+    """
+    Added a functionality that distinguishes between
+    frequency only [filetype="mckly"]
+    optimisation and frequency files [filetype="optmck"]
+    bacause if you pass to the old OpenMolcas parser an output file that is an optimisation followed by
+    frequency calculation, it will take the very initial (non-optimised) geometry and the normal modes.
+    """
+    nm = TSH.NormalModes(filename=".output", filetype="mckly", nb_atoms=10, nb_nm=24)
 
     # Create containers with N dimensions
     for dim in [18, 22, 24]:

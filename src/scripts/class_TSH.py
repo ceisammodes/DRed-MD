@@ -204,14 +204,16 @@ class NormalModes:
     """Take a Gaussian or Molcas frequency calculation output file, and create the matrices to convert from
     cartesian [Bohr] to mass-frequency scaled normal modes (as used in vMCG). """
 
-    def __init__(self, filename: str, nb_atoms: int, nb_nm: int):
+    def __init__(self, filename: str, filetype: str, nb_atoms: int, nb_nm: int):
         """Initialize NormalModes object.
 
         Args:
             filename (str): Path to the Gaussian or Molcas frequency calculation output file.
+            filetype (str): Type of the job in the frequency calculation output file (freq, optfreq) 
             nb_atoms (int): Number of atoms in the molecule.
             nb_nm (int): Number of normal modes to be considered.
         """
+        self.filetype = filetype
         self.nb_atoms = nb_atoms
         self.nb_cart = self.nb_atoms * 3
         self.nb_nm = nb_nm
@@ -311,7 +313,7 @@ class NormalModes:
     def _parse_Molcas(self):
         """Parse Molcas output data to extract frequencies and normal modes.
 
-        This function extracts the following information from the Gaussian output data
+        This function extracts the following information from the OpenMolcas output data
         stored in `self.data`:
 
         - Atomic symbols: Extracted from the "Cartesian Coordinates" section to deduce atomic masses.
@@ -327,9 +329,23 @@ class NormalModes:
                                             Shape is (nb_nm, nb_cart), where nb_nm is the number of normal modes
                                             and nb_cart is the number of Cartesian coordinates.
         """
-        # Get symbols and geometry [Angstroms]
-        idx_geom = get_idx(self.data, "Cartesian Coordinates")[0] + 4
-        geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
+        # Detecting if the output file contains frequency or optimisation steps and frequencies at the end 
+        if self.filetype == "mckly":
+            # Get symbols and geometry [Angstroms] at the start of the file
+            idx_geom = get_idx(self.data, "Cartesian Coordinates")[0] + 4
+            geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
+        elif self.filetype == "optmck":
+            # Get symbols and geometry [Angstroms] right before MCKINLEY
+            idx_geom = get_idx(self.data, "Nuclear coordinates of the final structure / Angstrom")[0] + 3
+            geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n) for n in range(4)]
+        else:
+            raise Exception("""
+            *** Please specify the type of the <Molcas> output file. ***
+
+            Options:
+                [mckly]   for a frequency output file
+                [optmck]  for an optimisation and frequency calculation
+            """)
 
         # Get atomic symbols to deduce masses [AMU]
         self.symbols = [re.sub(r"\d+", "", s) for s in geom_data[0]]
