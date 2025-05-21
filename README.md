@@ -166,20 +166,22 @@ The `ensemble.pickle` file is produced and contains information about the refere
 
 - python create_PCA.py or python nm_variance.py
   
-  E.g., in the `create_PCA.py` script select the number(s) of dimensions for the reduction inside the list in the loop:
+  E.g., with the `create_PCA.py` script it is possible to select the number(s) of dimensions to keep passing them as a list interactively:
   ```
-  # Create containers with N dimensions
-    for dim in [18]:
-        # Create PCA object
-        fr = TSH.FitterReducer(ensemble)
-
-        # Apply a transformation
-        fr.featurizer(repr="nm", nm=nm, kabsch=True, COM=True, mass_w=False)
-
-        # Apply PCA and save as pickle file
-        fr.apply_pca(n_comp=dim)
+  python create_PCA.py -i ensemble.pickle -f freq.output -ft mckly
   ```
+  ```
+  Loading pickle...
+  Data loaded!
 
+  Found 10 atoms in the OpenMolcas frequency files.
+  Found 24 normal modes in the OpenMolcas frequency files.
+  Enter the number of principal components to keep.
+  You can specify multiple integers to generate multiple files.
+  Example: 2 4 31
+
+  > 18
+  ```
   In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with `k` the number of selected NMs ordered by variance is obtained.
 
 All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_200325/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
