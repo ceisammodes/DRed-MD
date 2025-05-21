@@ -72,6 +72,8 @@ def parse_arguments():
                         help='name of the input file (default: ensemble.pickle)')
     parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
                         help='name of the frequency file (default: freq.output)')
+    parser.add_argument('-ft', '--filetype', type=str, default='mckly',
+                        help='only frequency [mckly] or optimisation and frequencies [optmck] (default: mckly)')
 
     return parser.parse_args()
 
@@ -84,14 +86,18 @@ if __name__ == "__main__":
     ensemble = pickle_load(args.input)
 
     # Create object containing <cart2nm>, <nm2cart>, and <nm_matrix> matrices
-    # TODO: add a functionality that distinguish between only OPT and OPT+FREQ files
-    # because if you put below an .output file that is an OPT followed by MCKINLEY
-    # it will take the very initial geometry and the normal modes of the OPT geometry
-    nm = TSH.NormalModes(filename=args.freq_file)
+    """
+    Added a functionality that distinguishes between
+    frequency only [filetype="mckly"]
+    optimisation and frequency files [filetype="optmck"]
+    bacause if you pass to the old OpenMolcas parser an output file that is an optimisation followed by
+    frequency calculation, it will take the very initial (non-optimised) geometry and the normal modes.
+    """
+    nm = TSH.NormalModes(filename=args.freq_file, filetype=args.filetype)
 
-    print("Enter the number of principal components to keep")
-    print("You can specify multiple integers to generate multiple files")
-    print("example: 2 4 31\n")
+    print("Enter the number of principal components to keep.")
+    print("You can specify multiple integers to generate multiple files.")
+    print("Example: 2 4 31\n")
 
     while True:
         user_input = input('> ')
@@ -104,7 +110,7 @@ if __name__ == "__main__":
                 break
 
         except ValueError:
-            print("Input only integers lower than the number of normal modes\n")
+            print("Input only integers lower than the number of normal modes.\n")
             continue
 
     # Create PCA object
