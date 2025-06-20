@@ -203,6 +203,7 @@ This folder can be transferred on the machine of choice with the compiled versio
 
 ***For the beta-testers:
 I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/.
+In this folder there is the OpenMolcas version compiled with the new dynamix features.
 The submission script can be found in templates/sub_array.slurm in this repository or as follows:***
 ```
 #!/bin/bash
