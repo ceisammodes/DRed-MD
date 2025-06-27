@@ -14,8 +14,9 @@
 - [Prerequisites](#Prerequisites)
   - [Installation](#Installation)
 - [Create Ensemble](#Create-Ensemble)
-- [Create PCA and NMV containers](#Create-PCA-and-NMV containers)
-- [MD in reduced dimensionality](#MD-in-reduced dimensionality)
+- [Create PCA and NMV containers](#create-pca-and-nmv-containers)
+- [MD in reduced dimensionality](#md-in-reduced-dimensionality)
+- [Test case](#a-test-case-trans-to-cis-isomerisation-of-azm-in-reduced-dimensionality)
 - [About us](#About-us)
 - [Acknowledgements](#Acknowledgements)
 
@@ -84,7 +85,7 @@ After the `ensemble.pickle` file is created, it can be read with `nm_variance.py
 # MD in reduced dimensionality
 Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
-# ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality: a test case
+# Test case: ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality
 
 ![Alt text](/docs/1234.png)
 
