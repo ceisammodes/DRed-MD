@@ -18,7 +18,7 @@
 - [MD in reduced dimensionality](#md-in-reduced-dimensionality)
 - [Test case](#a-test-case-trans-to-cis-isomerisation-of-azm-in-reduced-dimensionality)
 - [About us](#About-us)
-- [Acknowledgements](#Acknowledgements)
+- [Acknowledgements and citations](#acknowledgements-and-citations)
 
 # Prerequisites
 
@@ -178,12 +178,14 @@ Note that in each folder, in order to run in reduced dimensionality, it is neces
 
 Note in the `.input` file the `red` keyword in the `&DYNAMIX` module.
 
-Finally, all is ready, happy dynamix!
+Finally, all is ready, happy reduced dynamix!
 
 ## About Us
 
 [The ATTOP team](https://morganevacher.wordpress.com/attop-project-members/)
 
-## Acknowledgements
+## Acknowledgements and citations
 
-Part of the calculations in the project were performed on the Jean Zay supercomputer (http://www.idris.fr/eng/jean-zay/) and the GLiCID cluster (https://doi.org/10.60487/glicid)
+Part of the calculations in the project were performed on the Jean Zay supercomputer (http://www.idris.fr/eng/jean-zay/) and the GLiCID cluster (https://doi.org/10.60487/glicid).
+
+If you are using our scripts, please cite our article: https://doi.org/10.1021/acs.jctc.5c00110.
