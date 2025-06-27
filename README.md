@@ -54,7 +54,7 @@ Then, create a `container` named `test_run`:
 docker run -it -v ~/.:/dred-md/ --name test_run <User>/dred-md
 ```
 
-The DRed-MD directory has has been mounted inside the container. Any changes, such as copying a directory `data` into the DRed-MD directory on your machine, will be accessible within the container under `/dred-md/data`.
+The DRed-MD directory has been mounted inside the container. Any changes, such as copying a directory `data` into the DRed-MD directory on your machine, will be accessible within the container under `/dred-md/data`.
 
 # Create Ensemble
 
