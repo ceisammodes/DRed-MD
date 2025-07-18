@@ -201,9 +201,9 @@ TRAJX/
 ```
 This folder can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
-It is possible to analyse the individual and cumulative variance explained by the eigenvectors, using the `anaeig.py` module:
+It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
 ```
-python anaeig.py --file PCA_24_comp_nm.pickle --plot --savefig
+python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
 ```
 <table>
   <tr>
