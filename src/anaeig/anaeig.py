@@ -1,8 +1,4 @@
-"""Script for the analysis of the PCA eigenvectors.
-Visualisation of the PCA eigenvectors in Cartesian coordinates.
-Initial version Alessandro 02/02/25.
-TODO Get rid of the hardcoded constant for the displacement along eigenvectors.
-     Docstrings. """
+"""Script for the analysis and the visualisation of the PCA eigenvectors. """
 
 import os
 import argparse
@@ -11,6 +7,8 @@ from typing import Any, NoReturn, Tuple, List
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+from matplotlib.ticker import AutoMinorLocator
 
 
 """ --- PARAMETERS -------------------------------------------------------------------------------------- """
@@ -28,6 +26,13 @@ MASSES = {'H': 1.007825 * U_TO_AMU,
           'O': 15.994915 * U_TO_AMU,
           'F': 18.998403 * U_TO_AMU,
           'Cr': 51.940512 * U_TO_AMU}
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+""" --- PLOT PARAMETERS --------------------------------------------------------------------------------- """
+
+# Set global font to Arial
+matplotlib.rcParams['font.family'] = 'Arial'
 
 """ ----------------------------------------------------------------------------------------------------- """
 
@@ -58,7 +63,7 @@ def pickle_load(fname: str) -> Any:
 
 
 def gs(X: np.array, row_vecs: bool = True, normalize: bool = True) -> np.array:
-    """ Orthogonalizes vectors (rows) using the Gram-Schmidt method.
+    """Orthogonalizes vectors (rows) using the Gram-Schmidt method.
     
     Args:
         X (np.array): Input matrix.
@@ -88,7 +93,7 @@ def gs(X: np.array, row_vecs: bool = True, normalize: bool = True) -> np.array:
 
 
 def plot_explained_var(eigval: np.array, explvar: np.array, savefig: bool=False) -> NoReturn:
-    """ Plots the explained variance as a function of the number of eigenvectors.
+    """Plots the explained variance as a function of the number of eigenvectors.
 
     Args:
         Eigenvalues (eigval): np.array
@@ -96,24 +101,38 @@ def plot_explained_var(eigval: np.array, explvar: np.array, savefig: bool=False)
         savefig: bool
 
     Returns:
-        plot and if savefig a .png
+        screen plot and if savefig a .png
     """
-    fig, ax = plt.subplots()
-
+    fig, ax = plt.subplots()  # Default size of the figure
+    
+    # Individual eigenvector variance
     ax.bar(range(len(eigval)), eigval / np.sum(eigval), alpha=0.5,
            align='center', color='#004e92', label='Individual explained variance')
     
+    # Cumulative variance
     csum_explvar = np.cumsum(explvar)
-
     ax.step(range(len(csum_explvar)), csum_explvar, where='mid',
             color='#8b2a44', label='Cumulative explained variance')
 
+    # Some plot parameters
     ax.set_xlabel('Principal component index', fontsize=14)
-
-    ax.legend(fontsize=14, loc='best')
     ax.set_ylabel('Explained variance ratio', fontsize=14)
+    ax.legend(fontsize=14, loc='center right')
 
-    ax.tick_params(axis='both', labelsize=14)
+    # ax.set_xticks(np.arange(0, len(eigval)))
+    # ax.set_xticklabels(np.arange(1, len(eigval) + 1))
+    even_indices = np.arange(1, len(eigval), 2)
+    even_labels = even_indices + 1
+    ax.set_xticks(even_indices)
+    ax.set_xticklabels(even_labels)
+
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+    
+    ax.tick_params(axis='both', which='both', direction='in', labelsize=14, 
+                   top=True, bottom=True, left=True, right=True)
+
+    ax.set_xlim([-0.75, len(eigval)])
 
     plt.tight_layout()
 
@@ -125,140 +144,105 @@ def plot_explained_var(eigval: np.array, explvar: np.array, savefig: bool=False)
     plt.show()
 
 
-def read_xyz_file(filename: str) -> Tuple[np.array, List]:
-    """
-    Reads an .xyz file and extracts atomic symbols and coordinates.
+def pcs_composition(eigvec: np.array, savefig: bool=False):
+    """Plots the PCs and the NMs to have a picture about the PCs composition.
 
     Args:
-        filename (str): The path to the .xyz file.
+        Eigenvectors (eigvec): np.array
+        savefig: bool
 
     Returns:
-        Tuple[np.array, List]: 
-            - A NumPy array of shape (N,3) containing atomic coordinates.
-            - A list of atomic symbols.
+        screen plot and if savefig a .png
     """
-    coordinates = []
-    symbols = []
+    # fig, ax = plt.subplots(figsize=(10,6))
+    fig, ax = plt.subplots()  # Default figsize
 
-    with open(filename) as file:
-        next(file), next(file)
-        for line in file:
-            if line.strip():
-                symbol, x, y, z = line.split()
-                coordinates.append([float(x), float(y), float(z)])
-                symbols.append(symbol)
+    cax = ax.imshow(np.abs(eigvec**2).T, cmap='cividis')
 
-    return np.asarray(coordinates), symbols
+    ax.set_xlabel("Principal component index", fontsize=14)
+    ax.set_ylabel("Normal Mode index", fontsize=14)
 
-
-def write_trj_xyz(filename_xyz: str, at_names: List, geom: np.array):
+    ax.set_xticks(list(range(1,25,2)))  # Tick positions
+    ax.set_xticklabels(list(range(2,25,2)))  # Tick positions
+    ax.set_yticks(list(range(1,25,2)))  # Tick positions
+    ax.set_yticklabels(list(range(2,25,2)))  # Tick positions
     """
-    Writes an .xyz trajectory file from a geometries stored as a (M,3N) NumPy array
-    where M is the number of frames.
-
-    Args:
-        filename_xyz (str): The name of the .xyz file to append data to.
-        at_names (List[str]): A list of atomic symbols corresponding to the atoms.
-        geom (np.array): A NumPy array of shape (N,3) representing atomic coordinates.
-
-    Returns:
-        None: The function writes directly to the file and does not return anything.
+    ax.set_yticks(list(range(0,24))) 
+    ax.set_yticklabels([r"CH$_3$ asym. torsion",
+                        r"CH$_3$  sym. torsion",
+                        r"NN torsion",
+                        r"CNN asym. bend",
+                        r"CNN  sym. bend",
+                        r"CH$_3$ rock",
+                        r"CN asym. stretch",
+                        r"CH$_3$ rock",
+                        r"CH$_3$ rock",
+                        r"CH$_3$ rock",
+                        r"CN sym. stretch",
+                        r"CH$_3$ asym. bend",
+                        r"CH$_3$  sym. bend",
+                        r"CH$_3$ asym. bend",
+                        r"CH$_3$ asym. bend",
+                        r"CH$_3$  sym. bend",
+                        r"CH$_3$ asym. bend",
+                        r"NN stretch",
+                        r"CH$_3$  sym. stretch",
+                        r"CH$_3$  sym. stretch",
+                        r"CH$_3$ asym. stretch",
+                        r"CH$_3$ asym. stretch",
+                        r"CH$_3$ asym. stretch",
+                        r"CH$_3$ asym. stretch"])
     """
-    with open(filename_xyz, 'a') as xyz:
-        xyz.write(f'{len(at_names)}\n\n')
-        for i in range(geom.shape[0]):
-            xyz.write(f'{at_names[i]} \t {geom[i][0]} \t {geom[i][1]} \t {geom[i][2]} \n')
+
+    ax.tick_params(axis='x', labelsize=14)  # X-axis ticks
+    ax.tick_params(axis='y', labelsize=14)  # Y-axis ticks
+
+    cbar = fig.colorbar(cax)
+    cbar.ax.set_ylabel("PC coefficient squared", fontsize=14)
+    cbar.ax.tick_params(labelsize=14)
+
+    plt.tight_layout()
     
+    if savefig:
+        plt.savefig("PCs2_NMs_composition.png", dpi=300)
+        # plt.savefig("PCs2_nms_trans-AZM_square.png", dpi=300)
+    else:
+        pass
+    
+    plt.show()
+
     return None
 
 
-def proj_along_pcs(pca_pickle, first_pc:int, last_pc: int, traj_data: str):
-    # Load CSV file into a DataFrame
-    df = pd.read_csv(f"{traj_data}")
-    
-    # Convert DataFrame to NumPy array
-    featurized_data = df.to_numpy()
-    
-    # Projection
-    w = pca_pickle.transform(featurized_data)
-    np.savetxt("projections.txt", w[:, first_pc-1:last_pc], header=f"PC{first_pc}-{last_pc} projections")
-
-    return None
-
-
-def filt_along_pc_new(pca_pickle, filename_xyz: str, at_names: List, traj_data: str, eigvec_nb: int):
-    """Filters trajectory data along a principal component and writes the filtered geometries to an .xyz file.
-
-    This function projects trajectory data onto a principal component, reconstructs
-    the filtered coordinates, and saves them in an .xyz trajectory file.
-
-    Args:
-        pca_pickle: A PCA object with `transform`, `mean_`, `nm2cart`, and `geom_ref_bohr` attributes.
-        filename_xyz (str): The name of the output .xyz file.
-        at_names (List): A list of atomic symbols corresponding to the atoms.
-        traj_data (str): The path to the CSV file containing trajectory data.
-        eigvec_nb (int): The index of the principal component to filter along.
-
-    Returns:
-        None: The function writes directly to a file and does not return anything.
-    """
-    # Load CSV file into a DataFrame
-    df = pd.read_csv(f"{traj_data}")
-    
-    # Convert DataFrame to NumPy array
-    featurized_data = df.to_numpy()
-    
-    # Projection
-    w = pca_pickle.transform(featurized_data)
-    
-    # Select component
-    filt = np.outer(w[:, eigvec_nb], eigvec[eigvec_nb, :]) + pca_pickle.mean_
-    filt_cart = filt @ pca_pickle.nm2cart.T + pca_pickle.geom_ref_bohr
-    
-    # Write the filtered Cartesian coordinates to a file
-    for frame in range(filt_cart.shape[0]):
-        write_trj_xyz(f"{filename_xyz}", at_names, filt_cart[frame].reshape(-1, 3) * BOHR_TO_ANG)
-
-    return None
 
 
 if __name__ == "__main__":
+
     # Set up argument parsing
     parser = argparse.ArgumentParser(description="Analyze a PCA pickle file.\n\
                                      Plot the explained variance as a function of the eigenvectors number.\n\
                                      Filter the trajectory along the selected PC.")
     parser.add_argument("-f", "--file", required=True, help="Path to the PCA .pickle file")
     
+    # Arguments related to the plot of the explained variance
     parser.add_argument("--plot", action="store_true", help="Plot explained variance")
+    parser.add_argument("--savefig", action="store_true", help="Save a .png of the explained variance plot")
     
-    parser.add_argument("--filt", action="store_true", help="Filter along the selected PC")
-    parser.add_argument("--eignum", help="Selected PC for --filt option")
-    parser.add_argument("-o", "--outname", help="Name of the .xyz output file from --filt")
-    
-    parser.add_argument("--proj", action="store_true", help="Projection of an .xyz trajectory onto the selected PCs")
-    parser.add_argument("--xyz", help=".xyz trajectory file to project")
-    parser.add_argument("--first", help="First eigenvector to consider for the projection")
-    parser.add_argument("--last", help="Last eigenvector to consider for the projection")
-
+    # Arguments related to the plot of the PCs squared
+    parser.add_argument("--plot_pc2", action="store_true", help="Plot principal components squared")
 
     args = parser.parse_args()
     filename = args.file
+    
     plot = args.plot
-    filt = args.filt
-    eignum = args.eignum
-    outname = args.outname
-    proj = args.proj
-    xyz2proj = args.xyz
-    first_pc = int(args.first)
-    last_pc = int(args.last)
+    plot_pc2 = args.plot_pc2
+    savefig = args.savefig
 
     # Check dependencies: --savefig requires --plot
-    if args.eignum and not args.filt:
-        parser.error("--eignum requires --filt. Use: --filt --eignum")
-    # Check dependencies: --proj requires --xyz, --first, --last
-    if args.proj and not args.xyz and not args.first and not args.last:
-        parser.error("--proj requires --xyz, --first, and --last. Add the necessary information to perform projection.")
+    if args.savefig and not (args.plot or args.plot_pc2):
+        parser.error("--savefig requires --plot and/or --plot_pc2. Use --plot --savefig")
 
+    # Loading the PCA pickle file
     pca_pickle = pickle_load(filename)
 
     # Eigenvectors
@@ -268,24 +252,14 @@ if __name__ == "__main__":
     # Explained variance (eigenvalues / sum(eigenvalues))
     explvar = pca_pickle.explained_variance_ratio_
 
-    savefig = False
-
     if plot:
         plot_explained_var(eigval, explvar, savefig)
         if savefig:
-            print("Plot saved to explained_var.png")
+            print("Plot saved to: explained_var.png")
         else:
-            print("Plot not saved. Set savefig to True if you want to save a .png.")
+            print("Plot not saved. Set --savefig if you want to save a .png.")
     else:
         print("Plot not shown. Enable --plot if you want to plot.")
 
-    if filt:
-        ref_geom, symbols = read_xyz_file("init_geom_0001.xyz")
-        traj_data = "data_saved.csv"
-        filt_along_pc_new(pca_pickle, outname, symbols, traj_data, int(eignum))
-
-    # Check dependencies: --proj requires --xyz, --first, --last
-    if proj:
-        traj_data = "data_saved.csv"
-        proj_along_pcs(pca_pickle, first_pc, last_pc, traj_data)
-    
+    if plot_pc2:
+        pcs_composition(eigvec, savefig)

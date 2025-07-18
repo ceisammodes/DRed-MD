@@ -201,6 +201,17 @@ TRAJX/
 ```
 This folder can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
+It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
+```
+python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
+```
+<table>
+  <tr>
+    <td><img src="/docs/explained_var.png" width="400"/></td>
+    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
+  </tr>
+</table>
+
 ***For the beta-testers:
 I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/.
 In this folder there is the OpenMolcas version compiled with the new dynamix features.

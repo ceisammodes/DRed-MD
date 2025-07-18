@@ -73,7 +73,7 @@ def get_col_array(lines: List[str], col: int) -> np.array:
 
 
 def gs(X: np.array, row_vecs: bool = True, normalize: bool = True) -> np.array:
-    """ Orthogonalizes vectors (rows) using the Gram-Schmidt method.
+    """Orthogonalizes vectors (rows) using the Gram-Schmidt method.
     
     Args:
         X (np.array): Input matrix.
