@@ -1,4 +1,4 @@
-# ***Dynamics in Reduced dimensionality***
+# ***Dynamics in Reduced Dimensionality***
 
 <img src="/docs/logo.png" width="500" height="500">
 
@@ -22,7 +22,7 @@
   - [MD in reduced dimensionality](#MD-in-reduced dimensionality)
 - [Example of use](#Example-of-use)
 - [About us](#About-us)
-- [Acknowledgements](#Acknowledgements)
+- [Acknowledgements and citations](#acknowledgements-and-citations)
 
 # Prerequisites
 
@@ -59,7 +59,7 @@ Then, create a `container` named `test_run`:
 docker run --user $UID:$GID  -it --rm -v $PWD/:/dred-md/ --name test_run <User>/dred-md
 ```
 
-The DRed-MD directory has has been mounted inside the container. Any changes, such as copying a directory `data` into the DRed-MD directory on your machine, will be accessible within the container under `/dred-md/data`.
+The DRed-MD directory has been mounted inside the container. Any changes, such as copying a directory `data` into the DRed-MD directory on your machine, will be accessible within the container under `/dred-md/data`.
 
 # Presentation of the functionalities
 
@@ -91,7 +91,7 @@ After the `ensemble.pickle` file is created, it can be read with `nm_variance.py
 ## MD in reduced dimensionality
 Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
-# ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality: a test case
+# Test case: ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality
 
 ![Alt text](/docs/1234.png)
 
@@ -245,12 +245,14 @@ cd TRAJ${SLURM_ARRAY_TASK_ID}
 /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/pymolcas $NAME.input >& $NAME.output
 ```
 
-Finally, all is ready, happy dynamix!
+Finally, all is ready, happy reduced dynamix!
 
 # About Us
 
 [The ATTOP team](https://morganevacher.wordpress.com/attop-project-members/)
 
-# Acknowledgements
+## Acknowledgements and citations
 
-Part of the calculations in the project were performed on the Jean Zay supercomputer (http://www.idris.fr/eng/jean-zay/) and the GLiCID cluster (https://doi.org/10.60487/glicid)
+Part of the calculations in the project were performed on the Jean Zay supercomputer (http://www.idris.fr/eng/jean-zay/) and the GLiCID cluster (https://doi.org/10.60487/glicid).
+
+If you are using our scripts, please cite our article: https://doi.org/10.1021/acs.jctc.5c00110.
