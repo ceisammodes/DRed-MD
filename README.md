@@ -1,4 +1,4 @@
-# ***Dynamics in Reduced dimensionality***
+# ***Dynamics in Reduced Dimensionality***
 
 <img src="/docs/logo.png" width="500" height="500">
 
