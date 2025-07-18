@@ -205,7 +205,12 @@ It is possible to analyse the individual and cumulative variance explained by th
 ```
 python anaeig.py --file PCA_24_comp_nm.pickle --plot --savefig
 ```
-<img src="/docs/explained_var.png" width="400" height="400">
+<table>
+  <tr>
+    <td><img src="/docs/explained_var.png" width="200"/></td>
+    <td><img src="/docs/PCs_nms_trans-AZM_square.png" width="200"/></td>
+  </tr>
+</table>
 
 ***For the beta-testers:
 I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/.
