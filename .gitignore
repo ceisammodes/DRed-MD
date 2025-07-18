@@ -145,8 +145,9 @@ dmypy.json
 cython_debug/
 
 # Test folders
-tests/*
-tests_190325/*
-tests_200325/
+tests_210525/
+tests_210525.tar.gz
 tests_200325.tar.gz
-tests.tar.gz
+
+# DATA folders
+data/*

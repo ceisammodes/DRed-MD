@@ -43,27 +43,84 @@ freqency file. The data are loaded from precomputed ensembles using the
 *******************************************************************************
 """
 
+import sys
+import os
+import argparse
+
+""" ----------------------------------------------------------------------------------------------------- """
+
+# Add the /src directory to $PATH
+SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 import scripts.class_TSH as TSH
 from scripts.utilities import pickle_load
 
+""" ----------------------------------------------------------------------------------------------------- """
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        prog='create_ensemble.py',
+        description='Creates an ensemble of all trajectories present in the current directory',
+        epilog='Don\'t forget to drink water!'
+    )
+
+    parser.add_argument('-i', '--input', type=str, default='ensemble.pickle',
+                        help='name of the input file (default: ensemble.pickle)')
+    parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
+                        help='name of the frequency file (default: freq.output)')
+    parser.add_argument('-ft', '--filetype', type=str, default='mckly',
+                        help='only frequency [mckly] or optimisation and frequencies [optmck] (default: mckly)')
+
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
+
+    args = parse_arguments()
+
     # Full dimensions ensembles used to create PCA containers
-    ensemble = pickle_load("ensemble.pickle")
+    ensemble = pickle_load(args.input)
 
     # Create object containing <cart2nm>, <nm2cart>, and <nm_matrix> matrices
-    # TODO: add a functionality that distinguish between only OPT and OPT+FREQ files
-    # because if you put below an .output file that is an OPT followed by MCKINLEY
-    # it will take the very initial geometry and the normal modes of the OPT geometry
-    nm = TSH.NormalModes(filename=".output", nb_atoms=10, nb_nm=24)
+    """
+    Added a functionality that distinguishes between
+    frequency only [filetype="mckly"]
+    optimisation and frequency files [filetype="optmck"]
+    bacause if you pass to the old OpenMolcas parser an output file that is an optimisation followed by
+    frequency calculation, it will take the very initial (non-optimised) geometry and the normal modes.
+    """
+    nm = TSH.NormalModes(filename=args.freq_file, filetype=args.filetype)
+
+    print("Enter the number of principal components to keep.")
+    print("You can specify multiple integers to generate multiple files.")
+    print("Example: 2 4 31\n")
+
+    while True:
+        user_input = input('> ')
+        try:
+            answer = [int(x) for x in user_input.split()]
+
+            if True in [1 > x > nm.nb_nm - 1 for x in answer]:
+                raise ValueError
+            else:
+                break
+
+        except ValueError:
+            print("Input only integers lower than the number of normal modes.\n")
+            continue
+
+    # Create PCA object
+    fr = TSH.FitterReducer(ensemble)
+
+    # Apply a transformation
+    fr.featurizer(repr="nm", nm=nm, kabsch=True, COM=True, mass_w=False)
 
     # Create containers with N dimensions
-    for dim in [18, 22, 24]:
-        # Create PCA object
-        fr = TSH.FitterReducer(ensemble)
-
-        # Apply a transformation
-        fr.featurizer(repr="nm", nm=nm, kabsch=True, COM=True, mass_w=False)
+    for dim in answer:
 
         # Apply PCA and save as pickle file
         fr.apply_pca(n_comp=dim)
