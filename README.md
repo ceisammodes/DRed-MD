@@ -208,7 +208,7 @@ python anaeig.py --file PCA_24_comp_nm.pickle --plot --savefig
 <table>
   <tr>
     <td><img src="/docs/explained_var.png" width="400"/></td>
-    <td><img src="/docs/PCs_nms_trans-AZM_square.png" width="600"/></td>
+    <td><img src="/docs/PCs_nms_trans-AZM_square.png" width="500"/></td>
   </tr>
 </table>
 
