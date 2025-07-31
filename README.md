@@ -3,13 +3,14 @@
 <img src="/docs/logo.png" width="500" height="500">
 
 # In this repository
-- **docs**: This directory contains the detailed documentation about the collection of programs used for performing surface hopping dynamics in reduced dimensionality.
 - **src**: This directory contains all the needed modules to perform dynamics in reduced dimensionality.
   - **sample_and_ens**: This directory contains Python scripts for creating `ensemble` objects from surface hopping trajectories, obtained from OpenMolcas, SHARC or NewtonX, in the form of `.pickle` files. Further details are provided below. The `ensemble` object contains the reference full dimensional data set and it can be seen as the training set on which Principal Component Analysis (PCA) or Normal Mode Variance (NMV) will be performed.
-  - **scripts**: This directory contains all the necessary dependencies for basically all the other scripts, the functions in `utility` module, and the main classes in `class_TSH`.
-  - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the reduction of the initial conditions in order to start the dynamics in reduced dimensionality.
+  - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the analysis of the `ensemble` objects and produce the selected dimensions (PCs with `create_PCA.py` or NMs `nm_variance.py`). It also contains the script `reduce_init_data.py` to reduce the initial conditions in order to start the dynamics in reduced dimensionality.
   - **transformers**: This directory contains the Python script dedicated to the reduction of dimensions using OpenMolcas.
+  - **anaeig**: This directory contains `anaeig.py` that analyses the PCs used for the reduction of the dimensionality. It returns the associated variance and the composition of the PCs in terms of the MNs.
+  - **scripts**: This directory contains all the necessary dependencies for basically all the other scripts, the functions in `utility` module, and the main classes in `class_TSH`.
 - **templates**: This directory contains some template of OpenMolcas input files and `slurm` submission files for the Jean Zay supercomputer (installed at IDRIS, a national computing centre for the CNRS).
+- **figures**: folder containing the figures reported below in this README.md file.
 - Some examples of dynamics run in reduced dymensionality are available at `https://uncloud.univ-nantes.fr/index.php/apps/files/files/1958632381?dir=/ATTOP-DATA/TESTS_RED_DIM` and accessible to everyone via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/5i2AoH2WtfGWsR3/download/tests_210525.tar.gz`
 
 ## Table of contents:
