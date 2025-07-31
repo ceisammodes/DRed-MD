@@ -90,13 +90,11 @@ After the `ensemble.pickle` file is created, it can be read with `create_PCA.py`
 After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. The number of normal modes (NMs) can be selected via command line option. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
 ## MD in reduced dimensionality
-Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
+Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Before starting the dynamics, the initial geometries and velocities can be reduced using the `src/script_reduce_dyn/reduce_init_data.py` script. Both the `.pickle` and `transformer.py` files should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
 # Test case: ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality
 
 ![Alt text](/docs/1234.png)
-
-# Example of use
 
 We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of trans-AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
@@ -113,6 +111,7 @@ cd tests
 wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/5i2AoH2WtfGWsR3/download/tests_210525.tar.gz
 tar -xvf tests.tar.gz
 ```
+
 After running these commands, finally you should have access to the `tests_210525/` folder.
 
 Actually at this step you can launch your docker container or activate your python virtual environment (see [Installation](#Installation))
@@ -135,7 +134,7 @@ The first step is the creation of the `ensemble.pickle` file that contains the i
   Choose your program: 
   ```
 
-  you are asked which program was used for the full dimensional simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example we will not dive into these functionalities and we can press `Enter` until **Insert filekeys** . Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is just `molcas_input` (just check in one of the nine folders to confirm it).
+  you are asked which program was used for the full dimensional dynamics simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example, we will not dive into these functionalities and we can press `Enter` until **Insert filekeys**. Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is `molcas_input` (just check in one of the nine folders to confirm it).
 
   ```
   Number of 'TRAJ' folders located: 9
@@ -185,7 +184,6 @@ The `ensemble.pickle` file is produced and contains information about the refere
   ```
   In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with `k` the number of selected NMs ordered by variance is obtained.
 
-All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_210525/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
 Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
 
 - the PCA or NMV `.pickle` file
@@ -200,18 +198,25 @@ TRAJX/
 ├── PCA_k_comp_nm.pickle
 └── transformer.py
 ```
-This folder can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
-It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
+The very last step is the reduction of the initial conditions that can be done:
+
+- python reduce_init_data.py
+
+producing the `red_geom_X.xyz` and `red_vel_X.xyz`, leading to:
+```bash
+TRAJX/
+├── geom_X.xyz
+├── red_geom_X.xyz
+├── velocity_X.xyz
+├── red_vel_X.xyz
+├── molcas_input_X.dyn.input
+├── PCA_k_comp_nm.pickle
+└── transformer.py
 ```
-python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
-```
-<table>
-  <tr>
-    <td><img src="/docs/explained_var.png" width="400"/></td>
-    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
-  </tr>
-</table>
+
+All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_210525/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
+These folders can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
 ***For the beta-testers:
 I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/.
@@ -256,6 +261,17 @@ cd TRAJ${SLURM_ARRAY_TASK_ID}
 
 /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/pymolcas $NAME.input >& $NAME.output
 ```
+
+It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
+```
+python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
+```
+<table>
+  <tr>
+    <td><img src="/docs/explained_var.png" width="400"/></td>
+    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
+  </tr>
+</table>
 
 Finally, all is ready, happy reduced dynamix!
 
