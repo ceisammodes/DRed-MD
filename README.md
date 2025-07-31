@@ -226,6 +226,8 @@ TRAJX/
 └── transformer.py
 ```
 
+The `molcas_input.template` reads the reduced initial conditions. If the user wants to start the dynamics from non-reduced initial conditions, it is possible to modify the OpenMolcas template file, i.e.,
+substituting `red_geom_X.xyz` and `red_velocity_X.xyz` by `geom_X.xyz` and `velocity_X.xyz`, respectively.
 All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_210525/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
 These folders can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
