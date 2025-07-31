@@ -184,7 +184,18 @@ The `ensemble.pickle` file is produced and contains information about the refere
   ```
   In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with `k` the number of selected NMs ordered by variance is obtained.
 
-Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
+It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
+```
+python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
+```
+<table>
+  <tr>
+    <td><img src="/docs/explained_var.png" width="400"/></td>
+    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
+  </tr>
+</table>
+
+Now in each folder, in order to run in reduced dimensionality, it is necessary to have:
 
 - the PCA or NMV `.pickle` file
 - `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`
@@ -261,17 +272,6 @@ cd TRAJ${SLURM_ARRAY_TASK_ID}
 
 /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/pymolcas $NAME.input >& $NAME.output
 ```
-
-It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
-```
-python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
-```
-<table>
-  <tr>
-    <td><img src="/docs/explained_var.png" width="400"/></td>
-    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
-  </tr>
-</table>
 
 Finally, all is ready, happy reduced dynamix!
 
