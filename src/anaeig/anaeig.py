@@ -1,4 +1,27 @@
-"""Script for the analysis and the visualisation of the PCA eigenvectors. """
+"""
+*******************************************************************************
+Copyright (C) [2025] [ATTOP project]
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License, version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License, version 3,
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*******************************************************************************
+
+*******************************************************************************
+Script for the analysis and the visualisation of the PCA eigenvectors.
+  
+  Alessandro Nicola Nardi (2023)
+
+*******************************************************************************
+"""
 
 import os
 import argparse
@@ -10,24 +33,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.ticker import AutoMinorLocator
 
-
-""" --- PARAMETERS -------------------------------------------------------------------------------------- """
-
-# Conversion from [Bohr] to [Angstrom]
-BOHR_TO_ANG = 0.529177249
-U_TO_AMU = 1. / 5.4857990943e-4  # Conversion from g/mol to amu
-MASSES = {'H': 1.007825 * U_TO_AMU,
-          'He': 4.002603 * U_TO_AMU,
-          'Li': 7.016004 * U_TO_AMU,
-          'Be': 9.012182 * U_TO_AMU,
-          'B': 11.009305 * U_TO_AMU,
-          'C': 12.000000 * U_TO_AMU,
-          'N': 14.003074 * U_TO_AMU,
-          'O': 15.994915 * U_TO_AMU,
-          'F': 18.998403 * U_TO_AMU,
-          'Cr': 51.940512 * U_TO_AMU}
-
-""" ----------------------------------------------------------------------------------------------------- """
 
 """ --- PLOT PARAMETERS --------------------------------------------------------------------------------- """
 
@@ -162,11 +167,12 @@ def pcs_composition(eigvec: np.array, savefig: bool=False):
     ax.set_xlabel("Principal component index", fontsize=14)
     ax.set_ylabel("Normal Mode index", fontsize=14)
 
+    """
     ax.set_xticks(list(range(1,25,2)))  # Tick positions
     ax.set_xticklabels(list(range(2,25,2)))  # Tick positions
     ax.set_yticks(list(range(1,25,2)))  # Tick positions
     ax.set_yticklabels(list(range(2,25,2)))  # Tick positions
-    """
+
     ax.set_yticks(list(range(0,24))) 
     ax.set_yticklabels([r"CH$_3$ asym. torsion",
                         r"CH$_3$  sym. torsion",

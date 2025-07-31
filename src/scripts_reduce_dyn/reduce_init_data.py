@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 *******************************************************************************
 The script reduces the generated initial consitions
 
-  Vincent Delmas (2023)
+  Vincent Delmas, Alessandro Nicola Nardi (2025)
 
 *******************************************************************************
 """

@@ -20,7 +20,8 @@ This file contains all the classes used for post-treatment as well as creating
 Ensemble of trajectories, Normal modes, Fit and Reduce geometries from full
 dimensions dynamics.
 
-  Vincent Delmas, Bartosz Ciborowski, Alessandro Nicola Nardi (2025)
+  Morgane Vacher, Vincent Delmas, Bartosz Ciborowski,
+  Alessandro Nicola Nardi (2025)
 
 *******************************************************************************
 """

@@ -1,15 +1,16 @@
 # ***Dynamics in Reduced Dimensionality***
 
-<img src="/docs/logo.png" width="500" height="500">
+<img src="/figures/logo.png" width="500" height="500">
 
 # In this repository
-- **docs**: This directory contains the detailed documentation about the collection of programs used for performing surface hopping dynamics in reduced dimensionality.
 - **src**: This directory contains all the needed modules to perform dynamics in reduced dimensionality.
   - **sample_and_ens**: This directory contains Python scripts for creating `ensemble` objects from surface hopping trajectories, obtained from OpenMolcas, SHARC or NewtonX, in the form of `.pickle` files. Further details are provided below. The `ensemble` object contains the reference full dimensional data set and it can be seen as the training set on which Principal Component Analysis (PCA) or Normal Mode Variance (NMV) will be performed.
+  - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the analysis of the `ensemble` objects. They produce the selected dimensions (PCs with `create_PCA.py` or NMs `nm_variance.py`). This folder also contains the script `reduce_init_data.py` to reduce the initial conditions in order to start the dynamics in reduced dimensionality.
+  - **transformers**: This directory contains the Python script interfaced with OpenMolcas to run dynamics in reduced dimensionality.
+  - **anaeig**: This directory contains `anaeig.py` that analyses the PCs used for the reduction of the dimensionality. It returns the associated variance and the composition of the PCs in terms of the NMs.
   - **scripts**: This directory contains all the necessary dependencies for basically all the other scripts, the functions in `utility` module, and the main classes in `class_TSH`.
-  - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the reduction of the initial conditions in order to start the dynamics in reduced dimensionality.
-  - **transformers**: This directory contains the Python script dedicated to the reduction of dimensions using OpenMolcas.
 - **templates**: This directory contains some template of OpenMolcas input files and `slurm` submission files for the Jean Zay supercomputer (installed at IDRIS, a national computing centre for the CNRS).
+- **figures**: folder containing the figures reported below in this README.md file.
 - Some examples of dynamics run in reduced dymensionality are available at `https://uncloud.univ-nantes.fr/index.php/apps/files/files/1958632381?dir=/ATTOP-DATA/TESTS_RED_DIM` and accessible to everyone via `wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/5i2AoH2WtfGWsR3/download/tests_210525.tar.gz`
 
 ## Table of contents:
@@ -26,7 +27,7 @@
 
 # Prerequisites
 
-To take advantage of all the modules present in this repository, consider to install all the the dependencies.
+To take advantage of all the modules present in this repository, consider to install all the dependencies.
 - Python 3.7+ (Developed and tested with python 3.9)
 - pip3
 
@@ -39,7 +40,7 @@ pip install -r requirements.txt
 ```
 
 ### Via Conda
-Alternatively, installation can be done using then [CONDA](https://docs.conda.io/projects/conda/en/latest/index.html) virtual environment:
+Alternatively, installation can be done using the [CONDA](https://docs.conda.io/projects/conda/en/latest/index.html) virtual environment:
 ```
 conda create -n your_env_name python=3.9
 conda activate your_env_name
@@ -66,10 +67,10 @@ The DRed-MD directory has been mounted inside the container. Any changes, such a
 ## Create Ensemble
 
 ### Create ens - `src/sample_and_ens/create_ensemble.py`
-After running Tully Surface Hopping (TSH) trajectories the `create_ensemble.py` script can be used to create an `ensemble` object in the form of a pickle binary file. The `Ensemble` class contains `Trajectory` class for each trajectory in the selected folder, and each Trajectory contains `Frame` classes which 
+After running Tully Surface Hopping (TSH) trajectories the `create_ensemble.py` script can be used to create an `ensemble` object in the form of a pickle binary file. The `Ensemble` class contains a `Trajectory` object for each trajectory in the selected folder, and each ``Trajectory` class contains a `Frame` object which 
 represents the molecular data at each timestep.
 
-***_Example_***. Given 100 trajectories of 600 steps, after running the `create_ensemble.py`, the binary file will contain an `ensemble` object containing 100 `trajectory` object and each trajectory object will contain 600 `frame` objects which will contain data like:
+***_Example_***. Given 100 trajectories of 600 steps, after running the `create_ensemble.py`, the binary file will contain an `ensemble` object containing 100 `trajectory` objects and each trajectory object will contain 600 `frame` objects which will contain data like:
 - geometry
 - velocities
 - kinetic energy
@@ -83,19 +84,17 @@ represents the molecular data at each timestep.
 ## Create PCA and NMV containers
 
 ### Create PCA - `src/scripts_reduce_dyn/create_PCA.py`
-After the `ensemble.pickle` file is created, it can be read with `create_PCA.py` and PCA can be performed on the full dimensional data set, i.e., the reference data set. The number of principal components (PCs) can be selected directly inside the script. After running `create_PCA.py`, the PCs and all the required information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
+After the `ensemble.pickle` file is created, it can be read with `create_PCA.py` and PCA can be performed on the full dimensional data set, i.e., the reference data set. The number of principal components (PCs) can be selected via a command line option. After running `create_PCA.py`, the PCs and all the required information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
 ### NM Variance - `src/scripts_reduce_dyn/nm_variance.py`
-After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
+After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. The number of normal modes (NMs) can be selected via command line option. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
 ## MD in reduced dimensionality
-Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
+Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Before starting the dynamics, the initial geometries and velocities can be reduced using the `src/script_reduce_dyn/reduce_init_data.py` script. Both the `.pickle` and `transformer.py` files should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
 
 # Test case: ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality
 
-![Alt text](/docs/1234.png)
-
-# Example of use
+![Alt text](/figures/1234.png)
 
 We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of trans-AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
@@ -112,6 +111,7 @@ cd tests
 wget -O tests.tar.gz https://uncloud.univ-nantes.fr/index.php/s/5i2AoH2WtfGWsR3/download/tests_210525.tar.gz
 tar -xvf tests.tar.gz
 ```
+
 After running these commands, finally you should have access to the `tests_210525/` folder.
 
 Actually at this step you can launch your docker container or activate your python virtual environment (see [Installation](#Installation))
@@ -134,7 +134,7 @@ The first step is the creation of the `ensemble.pickle` file that contains the i
   Choose your program: 
   ```
 
-  you are asked which program was used for the full dimensional simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example we will not dive into these functionalities and we can press `Enter` until **Insert filekeys** . Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is just `molcas_input` (just check in one of the nine folders to confirm it).
+  you are asked which program was used for the full dimensional dynamics simulations, with compatibility with SHARC, NX, and OpenMolcas. In this case, select `3`. Then you are asked about the Total trajectories, Trajectories to skip, Upper limit of timesteps. For this example, we will not dive into these functionalities and we can press `Enter` until **Insert filekeys**. Finally, we have to Insert filekey(s) which should be followed by the root of the molcas input name. In this case is `molcas_input` (just check in one of the nine folders to confirm it).
 
   ```
   Number of 'TRAJ' folders located: 9
@@ -184,8 +184,18 @@ The `ensemble.pickle` file is produced and contains information about the refere
   ```
   In the case of PCA, a file named `PCA_k_comp_nm.pickle`, with `k` the number of selected PCs, is obtained. In the previous example, `k = 18`. It contains the information about the PCA done on the training set. In the case of NMV, a file named `container_var_k_dim_nm.pickle` with `k` the number of selected NMs ordered by variance is obtained.
 
-All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_210525/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
-Note that in each folder, in order to run in reduced dimensionality, it is necessary to have:
+It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
+```
+python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
+```
+<table>
+  <tr>
+    <td><img src="/figures/explained_var.png" width="400"/></td>
+    <td><img src="/figures/PCs2_nms_trans-AZM_square.png" width="500"/></td>
+  </tr>
+</table>
+
+Now in each folder, in order to run in reduced dimensionality, it is necessary to have:
 
 - the PCA or NMV `.pickle` file
 - `transformer.py` module (part of the OpenMolcas suite) that can be found also in this repository in `src/transformers/`
@@ -199,18 +209,27 @@ TRAJX/
 ├── PCA_k_comp_nm.pickle
 └── transformer.py
 ```
-This folder can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
-It is possible to analyse the individual and cumulative variance explained by the eigenvectors and their composition in terms of normal modes, using the `anaeig.py` module:
+The very last step is the reduction of the initial conditions that can be done:
+
+- python reduce_init_data.py
+
+producing the `red_geom_X.xyz` and `red_velocity_X.xyz`, leading to:
+```bash
+TRAJX/
+├── geom_X.xyz
+├── red_geom_X.xyz
+├── velocity_X.xyz
+├── red_velocity_X.xyz
+├── molcas_input_X.dyn.input
+├── PCA_k_comp_nm.pickle
+└── transformer.py
 ```
-python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
-```
-<table>
-  <tr>
-    <td><img src="/docs/explained_var.png" width="400"/></td>
-    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
-  </tr>
-</table>
+
+The `molcas_input.template` reads the reduced initial conditions. If the user wants to start the dynamics from non-reduced initial conditions, it is possible to modify the OpenMolcas template file, i.e.,
+substituting `red_geom_X.xyz` and `red_velocity_X.xyz` by `geom_X.xyz` and `velocity_X.xyz`, respectively.
+All the ingredients necessary to run in reduced dimensionality are ready! In the directory: `tests/tests_210525/trans_AZM/DRed-MD_trajs/`, some trajectory folders are already prepared and named `TRAJ1/`, `TRAJ2/`, ..., `TRAJ9/`. It is possible to find also the `PCA_18_comp_nm.pickle` file copied from the `reference_ensemble/` folder.
+These folders can be transferred on the machine of choice with the compiled version of OpenMolcas that offers the possibility to run in reduced dimensionality.
 
 ***For the beta-testers:
 I used Jean-Zay and the OpenMolcas version in /linkhome/rech/gencei01/uqv47eu/soft/openmolcas/build-dev-gl2/.

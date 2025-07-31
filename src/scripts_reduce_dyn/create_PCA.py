@@ -38,7 +38,7 @@ freqency file. The data are loaded from precomputed ensembles using the
   simulations.
 - `.output`: Frequency data obtained from OpenMolcas calculations.
   
-  Vincent Delmas (2023)
+  Vincent Delmas, Bartosz Ciborowski, Alessandro Nicola Nardi (2025)
 
 *******************************************************************************
 """
