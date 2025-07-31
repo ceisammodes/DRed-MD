@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 This script creates an <Ensemble> object made of trajectories (<Trajectory>
 object) themselves composed of frames for each timestep (<Frame> object).
   
-  Vincent Delmas, Isabella Merritt (2023)
+  Morgane Vacher, Vincent Delmas, Isabella Merritt (2023)
 
 *******************************************************************************
 """

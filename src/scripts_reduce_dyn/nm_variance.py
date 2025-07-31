@@ -47,7 +47,7 @@ Main:
 - Removes N lowest normal modes iteratively and saves PCA containers as pickle
   binary files.
 
-  Vincent Delmas (2023)
+  Vincent Delmas, Bartosz Ciborowski, Alessandro Nicola Nardi (2025)
 
 *******************************************************************************
 """
