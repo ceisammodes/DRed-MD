@@ -5,9 +5,9 @@
 # In this repository
 - **src**: This directory contains all the needed modules to perform dynamics in reduced dimensionality.
   - **sample_and_ens**: This directory contains Python scripts for creating `ensemble` objects from surface hopping trajectories, obtained from OpenMolcas, SHARC or NewtonX, in the form of `.pickle` files. Further details are provided below. The `ensemble` object contains the reference full dimensional data set and it can be seen as the training set on which Principal Component Analysis (PCA) or Normal Mode Variance (NMV) will be performed.
-  - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the analysis of the `ensemble` objects and produce the selected dimensions (PCs with `create_PCA.py` or NMs `nm_variance.py`). It also contains the script `reduce_init_data.py` to reduce the initial conditions in order to start the dynamics in reduced dimensionality.
-  - **transformers**: This directory contains the Python script dedicated to the reduction of dimensions using OpenMolcas.
-  - **anaeig**: This directory contains `anaeig.py` that analyses the PCs used for the reduction of the dimensionality. It returns the associated variance and the composition of the PCs in terms of the MNs.
+  - **scripts_reduce_dyn**: This directory contains Python scripts dedicated to the analysis of the `ensemble` objects. They produce the selected dimensions (PCs with `create_PCA.py` or NMs `nm_variance.py`). This folder also contains the script `reduce_init_data.py` to reduce the initial conditions in order to start the dynamics in reduced dimensionality.
+  - **transformers**: This directory contains the Python script interfaced with OpenMolcas to run dynamics in reduced dimensionality.
+  - **anaeig**: This directory contains `anaeig.py` that analyses the PCs used for the reduction of the dimensionality. It returns the associated variance and the composition of the PCs in terms of the NMs.
   - **scripts**: This directory contains all the necessary dependencies for basically all the other scripts, the functions in `utility` module, and the main classes in `class_TSH`.
 - **templates**: This directory contains some template of OpenMolcas input files and `slurm` submission files for the Jean Zay supercomputer (installed at IDRIS, a national computing centre for the CNRS).
 - **figures**: folder containing the figures reported below in this README.md file.
@@ -27,7 +27,7 @@
 
 # Prerequisites
 
-To take advantage of all the modules present in this repository, consider to install all the the dependencies.
+To take advantage of all the modules present in this repository, consider to install all the dependencies.
 - Python 3.7+ (Developed and tested with python 3.9)
 - pip3
 
@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ```
 
 ### Via Conda
-Alternatively, installation can be done using then [CONDA](https://docs.conda.io/projects/conda/en/latest/index.html) virtual environment:
+Alternatively, installation can be done using the [CONDA](https://docs.conda.io/projects/conda/en/latest/index.html) virtual environment:
 ```
 conda create -n your_env_name python=3.9
 conda activate your_env_name
@@ -67,10 +67,10 @@ The DRed-MD directory has been mounted inside the container. Any changes, such a
 ## Create Ensemble
 
 ### Create ens - `src/sample_and_ens/create_ensemble.py`
-After running Tully Surface Hopping (TSH) trajectories the `create_ensemble.py` script can be used to create an `ensemble` object in the form of a pickle binary file. The `Ensemble` class contains `Trajectory` class for each trajectory in the selected folder, and each Trajectory contains `Frame` classes which 
+After running Tully Surface Hopping (TSH) trajectories the `create_ensemble.py` script can be used to create an `ensemble` object in the form of a pickle binary file. The `Ensemble` class contains a `Trajectory` object for each trajectory in the selected folder, and each ``Trajectory` class contains a `Frame` object which 
 represents the molecular data at each timestep.
 
-***_Example_***. Given 100 trajectories of 600 steps, after running the `create_ensemble.py`, the binary file will contain an `ensemble` object containing 100 `trajectory` object and each trajectory object will contain 600 `frame` objects which will contain data like:
+***_Example_***. Given 100 trajectories of 600 steps, after running the `create_ensemble.py`, the binary file will contain an `ensemble` object containing 100 `trajectory` objects and each trajectory object will contain 600 `frame` objects which will contain data like:
 - geometry
 - velocities
 - kinetic energy
@@ -84,10 +84,10 @@ represents the molecular data at each timestep.
 ## Create PCA and NMV containers
 
 ### Create PCA - `src/scripts_reduce_dyn/create_PCA.py`
-After the `ensemble.pickle` file is created, it can be read with `create_PCA.py` and PCA can be performed on the full dimensional data set, i.e., the reference data set. The number of principal components (PCs) can be selected directly inside the script. After running `create_PCA.py`, the PCs and all the required information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
+After the `ensemble.pickle` file is created, it can be read with `create_PCA.py` and PCA can be performed on the full dimensional data set, i.e., the reference data set. The number of principal components (PCs) can be selected via a command line option. After running `create_PCA.py`, the PCs and all the required information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
 ### NM Variance - `src/scripts_reduce_dyn/nm_variance.py`
-After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
+After the `ensemble.pickle` file is created, it can be read with `nm_variance.py` that computes the NMV and removes the selected NM with low variance associated. The number of normal modes (NMs) can be selected via command line option. After running `nm_variance.py` the NMs to be included and all the information to perform dynamics in reduced dimensionality are stored in a new `.pickle` file that will be read from OpenMolcas during the dynamics.
 
 ## MD in reduced dimensionality
 Finally, after the `.pickle` file containg information regarding the PCA or the NMV is available, MD in reduced dimensionality can be performed using OpenMolcas and the `src/transformers/transformer.py` module. Both the `.pickle` file and the `transformer.py` should be present in the folder in which the MD is run. An example of input file for running in reduced dimensionality is given in `templates/molcas_dyn_input.template`.
