@@ -214,13 +214,13 @@ The very last step is the reduction of the initial conditions that can be done:
 
 - python reduce_init_data.py
 
-producing the `red_geom_X.xyz` and `red_vel_X.xyz`, leading to:
+producing the `red_geom_X.xyz` and `red_velocity_X.xyz`, leading to:
 ```bash
 TRAJX/
 ├── geom_X.xyz
 ├── red_geom_X.xyz
 ├── velocity_X.xyz
-├── red_vel_X.xyz
+├── red_velocity_X.xyz
 ├── molcas_input_X.dyn.input
 ├── PCA_k_comp_nm.pickle
 └── transformer.py
