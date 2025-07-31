@@ -1,6 +1,6 @@
 # ***Dynamics in Reduced Dimensionality***
 
-<img src="/docs/logo.png" width="500" height="500">
+<img src="/figures/logo.png" width="500" height="500">
 
 # In this repository
 - **src**: This directory contains all the needed modules to perform dynamics in reduced dimensionality.
@@ -94,7 +94,7 @@ Finally, after the `.pickle` file containg information regarding the PCA or the 
 
 # Test case: ***trans***-to-***cis*** isomerisation of AZM in reduced dimensionality
 
-![Alt text](/docs/1234.png)
+![Alt text](/figures/1234.png)
 
 We provide, as a minimal example, the reduced dimensional dynamics of trans-AZM upon excitation to the S1 electronic state and the procedure followed to run in reduced dimensionality. Our intention with this example is not to show quantitative results about the isomerisation process of trans-AZM but rather to illustrate the simple but completely general procedure that can be followed to run simulations in reduced dimensionality within the present package.
 
@@ -190,8 +190,8 @@ python anaeig.py --file PCA_24_comp_nm.pickle --plot --plot_pc2 --savefig
 ```
 <table>
   <tr>
-    <td><img src="/docs/explained_var.png" width="400"/></td>
-    <td><img src="/docs/PCs2_nms_trans-AZM_square.png" width="500"/></td>
+    <td><img src="/figures/explained_var.png" width="400"/></td>
+    <td><img src="/figures/PCs2_nms_trans-AZM_square.png" width="500"/></td>
   </tr>
 </table>
 

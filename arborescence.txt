@@ -1,14 +1,16 @@
 .
 ├── .git
-├── .gitattributes
 ├── .gitignore
+├── AUTHORS
+├── CONTRIBUTORS
+├── Dockerfile
 ├── LICENSE
 ├── README.md
 ├── arborescence.txt
-├── docs
-│   └── README.txt
+├── figures
 ├── requirements.txt
 ├── src
+│   ├── anaeig
 │   ├── sample_and_ens
 │   ├── scripts
 │   ├── scripts_reduce_dyn
@@ -16,7 +18,3 @@
 ├── templates
 │   ├── molcas_dyn_input.template
 │   └── sub_array.slurm
-└── tests
-    ├── Cr_CO4_bpy
-    └── trans_AZM
-
