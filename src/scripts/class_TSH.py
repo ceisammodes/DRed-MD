@@ -236,9 +236,10 @@ class NormalModes:
             freqs, normal_modes = self._parse_Gaussian()
         elif len(get_idx(self.data, "This copy of MOLCAS")) != 0 or len(get_idx(self.data, "This run of MOLCAS")) != 0:
             freqs, normal_modes = self._parse_Molcas()
+        elif len(get_idx(self.data, "[Molden Format]")) != 0:
+            freqs, normal_modes = self._parse_Molden()
         else:
-            # TODO read molden files - much more lightweight and easy to parse
-            raise Exception("Only <Gaussian> and <Molcas> frequency files are supported for now.")
+            raise Exception("Only <Gaussian>, <Molcas> and <Molden> frequency files are supported for now.")
 
         # Convert frequencies to Hartree
         freq_hartree = abs(freqs * INV_CM_TO_HARTREE)
