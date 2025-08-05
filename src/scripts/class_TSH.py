@@ -205,12 +205,14 @@ class NormalModes:
     """Take a Gaussian or Molcas frequency calculation output file, and create the matrices to convert from
     cartesian [Bohr] to mass-frequency scaled normal modes (as used in vMCG). """
 
-    def __init__(self, filename: str, filetype: str):
+    def __init__(self, filename: str, filetype: str = "mknly"):
         """Initialize NormalModes object.
 
         Args:
             filename (str): Path to the Gaussian or Molcas frequency calculation output file.
             filetype (str): Type of the job in the frequency calculation output file (freq, or opt+freq).
+                            It is needed only for OpenMolcas to correctly take the geometry of the NMs.
+                            Default is "mknly", which corresponds to only frequencies calculation.
         """
         self.filetype = filetype
         self.nb_atoms = None
@@ -234,9 +236,10 @@ class NormalModes:
             freqs, normal_modes = self._parse_Gaussian()
         elif len(get_idx(self.data, "This copy of MOLCAS")) != 0 or len(get_idx(self.data, "This run of MOLCAS")) != 0:
             freqs, normal_modes = self._parse_Molcas()
+        elif len(get_idx(self.data, "[Molden Format]")) != 0:
+            freqs, normal_modes = self._parse_Molden()
         else:
-            # TODO read molden files - much more lightweight and easy to parse
-            raise Exception("Only <Gaussian> and <Molcas> frequency files are supported for now.")
+            raise Exception("Only <Gaussian>, <Molcas> and <Molden> frequency files are supported for now.")
 
         # Convert frequencies to Hartree
         freq_hartree = abs(freqs * INV_CM_TO_HARTREE)
@@ -259,9 +262,9 @@ class NormalModes:
         This function extracts the following information from the Gaussian output data
         stored in `self.data`:
 
-        - Atomic symbols: Extracted from the "Input orientation" section to deduce atomic masses.
+        - Atomic symbols: Extracted from the "Standard orientation" section to deduce atomic masses.
         - Atomic masses:  Determined based on the atomic symbols using `ELEMENTS_ATOMIC_MASS`.
-        - Geometry:       Extracted from the "Input orientation" section in Angstroms and converted to Bohr.
+        - Geometry:       Extracted from the "Standard orientation" section in Angstroms and converted to Bohr.
         - Frequencies:    Extracted from the "Frequencies" section in cm-1.
         - Normal modes:   Extracted from the "Frequencies" section, corresponding to the frequencies.
 
@@ -273,55 +276,62 @@ class NormalModes:
                                             and nb_cart is the number of Cartesian coordinates.
         """
         # Get atomic symbols to deduce masses [AMU]
-        idx_geom = get_idx(self.data, "Input orientation:")[0] + 5
+        idx_geom = get_idx(self.data, "Standard orientation:")[0] + 5
 
         # Get number of atoms
         idx_atoms = get_idx(self.data, 'NAtoms')[0]
         self.nb_atoms = int(self.data[idx_atoms].split()[1])
+        self.nb_cart = self.nb_atoms * 3
 
-        self.symbols = get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], 1)
+        # Round to nearest integer (in case of float representation)
+        atomic_numbers = get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], 1).round().astype(int)
+        self.symbols = [ATOMIC_NUMBER_TO_SYMBOL.get(num, "?") for num in atomic_numbers]
 
-        # Add atomic Mass
-        masses = np.zeros(self.nb_cart)
-        for c in range(self.nb_cart):
-            masses[c] = [k for k, v in ELEMENTS_ATOMIC_MASS.items() if int(v/2) == c//3][0]
-        self.masses = masses
-
+        # Add atomic Mass using symbols
+        masses = []
+        for symbol in self.symbols:
+            masses.extend([ELEMENTS_ATOMIC_MASS.get(symbol)]*3)
+        self.masses = np.asarray(masses)
+        
         # Get origin geometry [Angstroms]
         geom = np.zeros(self.nb_cart)
         for i in range(self.nb_atoms):
             geom[i*3: i*3+3] = [float(c) for c in self.data[idx_geom + i].split()[3: 6]]
 
-        # Geom [Bohr]
-        geom_bohr = geom * ANG_TO_BOHR
-
-        # Read frequencies [cm-1] and normal modes from output file
-        freqs = np.zeros(self.nb_nm)
-        normal_modes = np.zeros((self.nb_nm, self.nb_cart))
+        # Geom [Ang] and [Bohr]
+        self.geom_ref_ang = geom
+        self.geom_ref_bohr = geom * ANG_TO_BOHR
 
         # Get number of normal modes
-        idx_nm = get_idx(self.data, "Frequencies ---")
+        idx_nm = get_idx(self.data, "Frequencies --")
         nb_nm = 0
         for idx in idx_nm:
             nb_nm += len(self.data[idx].split()) - 2
         self.nb_nm = nb_nm
 
-        # Normal modes are printed 5 by 5
-        idx_nm = idx_nm[0]
-        for i in range(self.nb_nm//5):
-            freqs[i*5: i*5+5] = [float(f) for f in self.data[idx_nm].split()[2:]]
-            idx_nm += 5
-            normal_modes[i*5: i*5+5] = [get_col_array(self.data[idx_nm: idx_nm + self.nb_cart], 3+n) for n in range(5)]
-            idx_nm += 2 + self.nb_cart
+        # Read frequencies [cm-1] and normal modes from output file
+        freqs = np.zeros(self.nb_nm)
+        normal_modes = np.zeros((self.nb_nm, self.nb_cart))
 
-        # If not multiple of 5 -> save rest
-        if self.nb_nm % 5 != 0:
-            i = self.nb_nm // 5
-            freqs[i*5:] = [float(f) for f in self.data[idx_nm].split()[2:]]
+        # Normal modes are printed 3 by 3
+        idx_nm = idx_nm[0]
+        for i in range(self.nb_nm//3):
+            freqs[i*3: i*3+3] = [float(f) for f in self.data[idx_nm].split()[2:]]
             idx_nm += 5
-            normal_modes[i * 5:] = [get_col_array(self.data[idx_nm: idx_nm + self.nb_cart], 3 + n)
-                                    for n in range(self.nb_nm % 5)]
-            idx_nm += 2 + self.nb_cart
+            
+            # `list3` contains the NumPy arrays of the x, y, z columns of the parsed NMs
+            list3 = [get_col_array(self.data[idx_nm: idx_nm + self.nb_atoms], 2+n) for n in range(9)]
+            # `grouped` contains the lists of the NumPy arrays of the x, y, z of the NMs 
+            grouped = [list3[i:i+3] for i in range(0, len(list3), 3)]
+            # Initialising the array containing the x, y, z of the three parsed NMs 
+            array3 = np.zeros((3, self.nb_cart))
+            for row_idx, (x, y, z) in enumerate(grouped):
+                # Interleave the x, y, z values for each atom
+                combined = np.column_stack([x, y, z]).flatten()
+                array3[row_idx] = combined
+
+            normal_modes[i*3: i*3+3] = array3
+            idx_nm += 2 + self.nb_atoms
 
         return freqs, normal_modes
 
@@ -414,6 +424,165 @@ class NormalModes:
 
         freqs = np.asarray(freqs)
         normal_modes = np.asarray(normal_modes).reshape((self.nb_nm, self.nb_cart))
+
+        return freqs, normal_modes
+
+    def _parse_Molcas(self):
+        """Parse Molcas output data to extract frequencies and normal modes.
+
+        This function extracts the following information from the OpenMolcas output data
+        stored in `self.data`:
+
+        - Atomic symbols: Extracted from the "Cartesian Coordinates" section to deduce atomic masses.
+        - Atomic masses:  Determined based on the atomic symbols using `ELEMENTS_ATOMIC_MASS`.
+        - Geometry:       Extracted from the "Cartesian Coordinates" section in Bohr and converted to Angstroms.
+        - Frequencies:    Extracted from the "Frequencies" section in cm-1.
+        - Normal modes:   Extracted from the "Frequencies" section, corresponding to the frequencies.
+
+        Returns:
+            tuple: A tuple containing:
+                - freqs (np.ndarray): Array of frequencies in cm-1.
+                - normal_modes (np.ndarray): Array of normal modes.
+                                            Shape is (nb_nm, nb_cart), where nb_nm is the number of normal modes
+                                            and nb_cart is the number of Cartesian coordinates.
+        """
+        # Detecting if the output file contains frequency or optimisation steps and frequencies at the end 
+        if self.filetype == "mckly":
+            # Get symbols and geometry [Angstroms] at the start of the file
+            idx_geom = get_idx(self.data, "Cartesian Coordinates")[0] + 4
+            # Get number of atoms
+            nb_atoms = 0
+            for line in self.data[idx_geom:]:
+                if line.strip() == '':
+                    self.nb_atoms = nb_atoms
+                    self.nb_cart = self.nb_atoms * 3
+                    break
+                nb_atoms += 1
+
+            print(f"Found {self.nb_atoms} atoms in the OpenMolcas frequency files.")
+            geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
+        elif self.filetype == "optmck":
+            # Get symbols and geometry [Angstroms] right before MCKINLEY
+            idx_geom = get_idx(self.data, "Nuclear coordinates of the final structure / Angstrom")[0] + 3
+            # Get number of atoms
+            nb_atoms = 0
+            for line in self.data[idx_geom:]:
+                if line.strip() == '':
+                    self.nb_atoms = nb_atoms
+                    self.nb_cart = self.nb_atoms * 3
+                    break
+                nb_atoms += 1
+
+            print(f"Found {self.nb_atoms} atoms in the OpenMolcas frequency files.")
+            geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n) for n in range(4)]
+        else:
+            raise Exception("""
+            *** Please specify the type of the <OpenMolcas> output file. ***
+
+            Options:
+                [mckly]   for a frequency output file
+                [optmck]  for an optimisation and frequency calculation
+            """)
+
+        # Get atomic symbols to deduce masses [AMU]
+        self.symbols = [re.sub(r"\d+", "", s) for s in geom_data[0]]
+
+        # Get ref geometry
+        self.geom_ref_bohr = np.asarray(list(zip(*geom_data[1:]))).ravel()
+        self.geom_ref_ang = self.geom_ref_bohr * BOHR_TO_ANG
+
+        # Add atomic Mass using symbols
+        masses = []
+        for symbol in self.symbols:
+            masses.extend([ELEMENTS_ATOMIC_MASS.get(symbol)]*3)
+        self.masses = np.asarray(masses)
+
+        # Read frequencies [cm-1] and normal modes (printed 6 by 6) from output file
+        nm_indices = get_idx(self.data, "Frequency:")
+        limit_index = get_idx(self.data, 'Principal components of the normal modes')[0]
+        nm_indices = [nm_idx for nm_idx in nm_indices if nm_idx < limit_index]
+
+        nb_nm = 0
+        freqs, normal_modes = [], []
+        for nm, idx in enumerate(nm_indices):
+            # TODO what should be done about imaginary frequencies?
+            freqs.extend([(-float(f[1:]) if f[0] == "i" else float(f)) for f in self.data[idx].split()[1:]])
+            num_columns = len(self.data[idx].split()[1:])
+            nb_nm += num_columns
+            normal_modes.extend([get_col_array(self.data[idx+5: idx+5+self.nb_cart], 2+n) for n in range(num_columns)])
+
+        self.nb_nm = nb_nm
+        print(f"Found {self.nb_nm} normal modes in the OpenMolcas frequency files")
+
+        freqs = np.asarray(freqs)
+        normal_modes = np.asarray(normal_modes).reshape((self.nb_nm, self.nb_cart))
+
+        return freqs, normal_modes
+
+    def _parse_Molden(self):
+        """Parses the Molden-format frequency file to extract vibrational data.
+        This method assumes that the .molden file is generated with the Molden program.
+        The molden files generated with other programs may differ in one or more headers. 
+
+        This method reads:
+        - the number of atoms and cartesian degrees of freedom,
+        - the atomic symbols and geometry in Bohr and Angstrom units,
+        - the atomic masses based on symbols,
+        - vibrational frequencies,
+        - and the corresponding normal modes.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: 
+                A tuple containing:
+                    - `freqs` (np.ndarray): 1D array of vibrational frequencies.
+                    - `normal_modes` (np.ndarray): 2D array of normal mode vectors 
+                    with shape (nb_nm, nb_cart), where `nb_nm` is the number of 
+                    vibrational modes and `nb_cart` is the number of Cartesian coordinates.
+        """
+        # Reading the number of atoms
+        idx_geom = get_idx(self.data, "[GEOMETRIES]")[0] + 1
+        self.nb_atoms = int(self.data[idx_geom])
+        print(f"Found {self.nb_atoms} atoms in the Molden frequency file.")
+        self.nb_cart = self.nb_atoms * 3
+
+        # Reading the geometry
+        idx_geom += 2  # increasing the index by 2 to go from number of atoms to the first row of the coordinates
+        geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n) for n in range(4)]
+
+        # Get atomic symbols to deduce masses [AMU]
+        self.symbols = [re.sub(r"\d+", "", s) for s in geom_data[0]]
+
+        # Get ref geometry
+        self.geom_ref_bohr = np.asarray(list(zip(*geom_data[1:]))).ravel()
+        self.geom_ref_ang = self.geom_ref_bohr * BOHR_TO_ANG
+
+        # Add atomic Mass using symbols
+        masses = []
+        for symbol in self.symbols:
+            masses.extend([ELEMENTS_ATOMIC_MASS.get(symbol)]*3)
+        self.masses = np.asarray(masses)
+
+        # Reading frequencies and normal modes
+        idx_lastvib = get_idx(self.data, "vibration")[-1]
+        self.nb_nm = int(self.data[idx_lastvib].split()[1])
+        print(f"Found {self.nb_nm} frequencies in the Molden frequency file.")
+
+        idx_freq = get_idx(self.data, "[FREQ]")[0] + 1
+        freqs = get_col_array(self.data[idx_freq: idx_freq + self.nb_nm], 0)
+        freqs = [float(item) for item in freqs]
+        freqs = np.asarray(freqs)
+
+        # Getting vibrations
+        normal_modes = np.zeros((self.nb_nm, self.nb_cart))
+        nm_indices = get_idx(self.data, "vibration")
+        for nm, idx in enumerate(nm_indices):
+            list3 = [get_col_array(self.data[idx+1: idx+1 + self.nb_atoms], n) for n in range(3)]
+            grouped = [list3[i:i+3] for i in range(0, len(list3), 3)]
+            for row_idx, (x, y, z) in enumerate(grouped):
+                # Interleave the x, y, z values for each atom
+                combined = np.column_stack([x, y, z]).flatten()
+
+            normal_modes[nm] = combined
 
         return freqs, normal_modes
 
