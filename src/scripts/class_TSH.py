@@ -461,7 +461,7 @@ class NormalModes:
         self.symbols = [re.sub(r"\d+", "", s) for s in geom_data[0]]
 
         # Get ref geometry
-        self.geom_ref_bohr = np.asarray(list(zip(*geom_data[1:]))).ravel()
+        self.geom_ref_bohr = np.asarray(list(zip(*geom_data[1:]))).ravel() * ANG_TO_BOHR
         self.geom_ref_ang = self.geom_ref_bohr * BOHR_TO_ANG
 
         # Add atomic Mass using symbols
