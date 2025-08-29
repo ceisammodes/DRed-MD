@@ -1274,8 +1274,12 @@ class SharcTraj(Trajectory):
 
         for i, matrix in enumerate(u_matrix_all):
             gradient_matrix = np.zeros((self.nb_ci, self.nb_ci, self.nb_atoms, 3))
-            for j in np.arange(self.nb_ci):
-                gradient_matrix[j, j] = force_mch_all[i * self.nb_ci + j]
+            if force_mch_all != []:
+                for j in np.arange(self.nb_ci):
+                    gradient_matrix[j, j] = force_mch_all[i * self.nb_ci + j]
+            if force_mch_all == []:
+                for j in np.arange(self.nb_ci):
+                    gradient_matrix[j, j] = 0.0
 
             gradient_diag = np.tensordot(matrix.T.conjugate(), gradient_matrix, axes=1)
             gradient_diag = np.tensordot(gradient_diag, matrix, axes=(1, 0))
