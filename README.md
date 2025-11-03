@@ -281,6 +281,10 @@ Finally, all is ready, happy reduced dynamix!
 
 [The ATTOP team](https://morganevacher.wordpress.com/attop-project-members/)
 
+## 📢  is under active development
+
+This project is archived in [Software Heritage](https://www.softwareheritage.org/). [![SWH](https://archive.softwareheritage.org/badge/swh:1:dir:4a36acd0a93a77d50e64035c907e49cb72782d3d/)](https://archive.softwareheritage.org/swh:1:dir:4a36acd0a93a77d50e64035c907e49cb72782d3d;origin=https://github.com/ceisammodes/DRed-MD;visit=swh:1:snp:58d35964c35b6b6d4c8cbcb0cad915c122794ed1;anchor=swh:1:rev:eaadc99e63bbee22a183151444641ad455f3ad58)
+
 ## Acknowledgements and citations
 
 Part of the calculations in the project were performed on the Jean Zay supercomputer (http://www.idris.fr/eng/jean-zay/) and the GLiCID cluster (https://doi.org/10.60487/glicid).
