@@ -14,7 +14,7 @@ for more details at <http://www.gnu.org/licenses/>.
 *******************************************************************************
 File 
 
-  Vincent Delmas (2023)
+  Vincent Delmas, Alessandro Nicola Nardi (2025)
 
 *******************************************************************************
 """
@@ -331,6 +331,31 @@ def apply_PCA(pickle: str, data: np.array, pattern: str, masses: np.array) -> np
 
         # Reshape data
         new_data = new_data.reshape(len(data.ravel()) // 3, 3)
+    elif pattern == "force" and pca.repr == "cart":
+        print("*** entered 'force' and 'cart' ***")
+
+        # Mass-weight force
+        data_mw = data / sqrt_masses
+
+        # Mass-weight <pca.components_> + GS
+        weigthed_proj = []
+        for row in pca.components_:
+            new_row = row.reshape(len(row) // 3, 3) * sqrt_masses
+            weigthed_proj.append(new_row.ravel())
+        weigthed_proj = gs(np.asarray(weigthed_proj))
+
+        # Change <pca.components_> by mass-weighted ones
+        pca.components_ = weigthed_proj
+
+        # Perform projection
+        reduced = np.dot(weigthed_proj, data_mw.ravel())
+        new_data = np.dot(reduced, weigthed_proj)
+
+        # Reshape
+        new_data = new_data.reshape(len(data.ravel()) // 3, 3)
+
+        # Un-Mass-weight force vector
+        new_data = new_data * sqrt_masses
     elif pattern == "vel" and pca.repr == "nm":
         print("*** entered 'vel' and 'nm' ***")
 
