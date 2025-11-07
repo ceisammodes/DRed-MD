@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 *******************************************************************************
 Script for the analysis and the visualisation of the PCA eigenvectors.
   
-  Alessandro Nicola Nardi (2023)
+  Alessandro Nicola Nardi (2025)
 
 *******************************************************************************
 """
