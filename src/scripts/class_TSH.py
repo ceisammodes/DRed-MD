@@ -371,7 +371,7 @@ class NormalModes:
             geom_data = [get_col_array(self.data[idx_geom: idx_geom + self.nb_atoms], n+1) for n in range(4)]
         elif self.filetype == "optmck":
             # Get symbols and geometry [Angstroms] right before MCKINLEY
-            idx_geom = get_idx(self.data, "Nuclear coordinates of the final structure / Angstrom")[0] + 3
+            idx_geom = get_idx(self.data, "Nuclear coordinates of the final structure / Bohr")[0] + 3
             # Get number of atoms
             nb_atoms = 0
             for line in self.data[idx_geom:]:
