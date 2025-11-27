@@ -145,6 +145,7 @@ dmypy.json
 cython_debug/
 
 # Test folders
+test_methim/
 tests_210525/
 tests_210525.tar.gz
 tests_200325.tar.gz
