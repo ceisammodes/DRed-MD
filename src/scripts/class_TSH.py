@@ -205,14 +205,14 @@ class NormalModes:
     """Take a Gaussian or Molcas frequency calculation output file, and create the matrices to convert from
     cartesian [Bohr] to mass-frequency scaled normal modes (as used in vMCG). """
 
-    def __init__(self, filename: str, filetype: str = "mknly"):
+    def __init__(self, filename: str, filetype: str = "mckly"):
         """Initialize NormalModes object.
 
         Args:
             filename (str): Path to the Gaussian or Molcas frequency calculation output file.
             filetype (str): Type of the job in the frequency calculation output file (freq, or opt+freq).
                             It is needed only for OpenMolcas to correctly take the geometry of the NMs.
-                            Default is "mknly", which corresponds to only frequencies calculation.
+                            Default is "mckly", which corresponds to only frequencies calculation.
         """
         self.filetype = filetype
         self.nb_atoms = None
@@ -461,7 +461,7 @@ class NormalModes:
         self.symbols = [re.sub(r"\d+", "", s) for s in geom_data[0]]
 
         # Get ref geometry
-        self.geom_ref_bohr = np.asarray(list(zip(*geom_data[1:]))).ravel() * ANG_TO_BOHR
+        self.geom_ref_bohr = np.asarray(list(zip(*geom_data[1:]))).ravel()
         self.geom_ref_ang = self.geom_ref_bohr * BOHR_TO_ANG
 
         # Add atomic Mass using symbols
