@@ -87,6 +87,8 @@ def parse_arguments():
                         help='name of the input file (default: ensemble.pickle)')
     parser.add_argument('-f', '--freq_file', type=str, default='freq.output',
                         help='name of the frequency file (default: freq.output)')
+    parser.add_argument('-ft', '--filetype', type=str, default='mckly',
+                        help='only frequency [mckly] or optimisation and frequencies [optmck] (default: mckly')
     parser.add_argument('-o', '--output', type=str, default='container_var',
                         help='prefix for output files (default: container_var)')
 
@@ -142,8 +144,12 @@ def remove_n_lowest_nm(nm: TSH.NormalModes, variance_with_index: np.array, to_re
         None: The function saves a PCA container as a pickle file.
     """
 
-    modes_removed = [mode for mode, _ in variance_with_index][-to_remove:]
-    print(f"Modes removed: {[mode + 1 for mode in modes_removed]}")
+    if to_remove > 0:
+        modes_removed = [mode for mode, _ in variance_with_index][-to_remove:]
+        print(f"Modes removed: {[mode + 1 for mode in modes_removed]}")
+    if to_remove == 0:
+        modes_removed = []
+        print(f"Modes removed: {[mode + 1 for mode in modes_removed]}")
 
     # Create a PCA container (IS ONLY A CONTAINER NO PCA INVOLVED)
     pca = PCA()
@@ -157,7 +163,7 @@ def remove_n_lowest_nm(nm: TSH.NormalModes, variance_with_index: np.array, to_re
     pickle_save(f"{args.output}_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
 
 
-def create_normal_modes(ens_path: str, nm_path: str) -> Tuple[TSH.NormalModes, np.array]:
+def create_normal_modes(ens_path: str, nm_path: str, filetype: str) -> Tuple[TSH.NormalModes, np.array]:
     """Creates normal modes for a specified ensemble and returns the normal modes object along with featurized data.
 
     Args:
@@ -171,7 +177,7 @@ def create_normal_modes(ens_path: str, nm_path: str) -> Tuple[TSH.NormalModes, n
     """
     # Load <ensemble> and <nm> object
     ensemble = pickle_load(ens_path)
-    nm = TSH.NormalModes(filename=nm_path)
+    nm = TSH.NormalModes(filename=nm_path, filetype=filetype)
 
     # Create normal modes and create dataframe with pandas
     fr = TSH.FitterReducer(ensemble)
@@ -187,6 +193,7 @@ if __name__ == "__main__":
     nm, data = create_normal_modes(
         args.input,
         args.freq_file,
+        args.filetype
     )
 
     # Get variance sorted and with index
