@@ -158,6 +158,7 @@ def remove_n_lowest_nm(nm: TSH.NormalModes, variance_with_index: np.array, to_re
     pca.nm_matrix = nm.nm_matrix
     pca.geom_ref_bohr = nm.geom_ref_bohr
     pca.to_remove = modes_removed
+    pca.atom_names_list = nm.symbols
 
     # Save as pickle file
     pickle_save(f"{args.output}_{len(variance_with_index) - len(modes_removed)}_dim_nm.pickle", pca)
