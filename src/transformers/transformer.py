@@ -197,6 +197,9 @@ def apply_variance(pickle: str, data: np.array, pattern: str, masses: np.array) 
     # Load nm pickle
     nm = pickle_load(pickle)
 
+    # Calculate masses vector square root
+    sqrt_masses = np.sqrt(masses)
+
     if pattern == "geom":
         print("*** entered 'variance' - 'geom' ***")
 
@@ -232,8 +235,11 @@ def apply_variance(pickle: str, data: np.array, pattern: str, masses: np.array) 
     elif pattern == "force":
         print("*** entered 'variance' - 'force' ***")
 
+        # Mass weighting
+        data = data / sqrt_masses
+
         # Transform to [nm]
-        data_nm = np.dot(nm.cart2nm, data.ravel())
+        data_nm = np.dot(nm.nm_matrix, data.ravel())
 
         # Set selected [nm] to zero
         for mode in nm.to_remove:
@@ -241,7 +247,10 @@ def apply_variance(pickle: str, data: np.array, pattern: str, masses: np.array) 
         print("data nm", data_nm)
 
         # Transform back to with only the selected nm
-        new_data = np.dot(nm.nm2cart, data_nm)
+        new_data = np.dot(nm.nm_matrix.T, data_nm)
+
+        # Remove mass-weighting
+        new_data = new_data.reshape(len(data.ravel()) // 3, 3) * sqrt_masses
 
         # Reshape data
         new_data = new_data.reshape(len(data.ravel()) // 3, 3)
