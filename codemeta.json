@@ -4,6 +4,26 @@
     "applicationCategory": "Spectroscopy and Excited States",
     "author": [
         {
+            "id": "https://orcid.org/0000-0001-9418-6579",
+            "type": "Person",
+            "affiliation": {
+                "id": "https://ror.org/04ysg2a58",
+                "type": "Organization"
+            },
+            "email": "morgane.vacher@univ-nantes.fr",
+            "familyName": "vacher",
+            "givenName": "morgane"
+        },
+        {
+            "type": "Person",
+            "affiliation": {
+                "id": "https://ror.org/04ysg2a58",
+                "type": "Organization"
+            },
+            "familyName": "delmas",
+            "givenName": "vincent"
+        },
+        {
             "id": "https://orcid.org/0000-0002-0959-1690",
             "type": "Person",
             "affiliation": {
@@ -15,7 +35,6 @@
             "givenName": "alessandro "
         },
         {
-            "id": "https://orcid.org/0009-0005-7169-5422",
             "type": "Person",
             "affiliation": {
                 "id": "https://ror.org/04ysg2a58",
@@ -24,20 +43,6 @@
             "email": "bartosz.ciborowski@univ-nantes.fr",
             "familyName": "Ciborowski",
             "givenName": "Bartosz"
-        }
-    ],
-    "codeRepository": "https://github.com/ceisammodes/DRed-MD.git",
-    "contributor": [
-        {
-            "id": "https://orcid.org/0000-0001-9418-6579",
-            "type": "Person",
-            "affiliation": {
-                "id": "https://ror.org/04ysg2a58",
-                "type": "Organization"
-            },
-            "email": "morgane.vacher@univ-nantes.fr",
-            "familyName": "vacher",
-            "givenName": "morgane"
         },
         {
             "id": "https://orcid.org/0009-0005-7169-5422",
@@ -51,6 +56,7 @@
             "givenName": "aymreic"
         }
     ],
+    "codeRepository": "https://github.com/ceisammodes/DRed-MD.git",
     "dateCreated": "2024-12-01",
     "dateModified": "2025-09-09",
     "datePublished": "2025-09-09",
@@ -60,7 +66,7 @@
         "type": "Organization",
         "name": "ERC-STG-21 101040356 ATTOP"
     },
-    "keywords": "Computational chemistry     Mathematical methods     Molecular dynamics simulations     Molecules     Redox reactions",
+    "keywords": "Computational chemistry     Mathematical methods     Molecular dynamics simulations     Molecules",
     "license": "https://spdx.org/licenses/GPL-3.0-or-later",
     "name": " DRed-MD",
     "operatingSystem": "LINUX",
