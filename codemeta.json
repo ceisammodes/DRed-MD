@@ -11,8 +11,8 @@
                 "type": "Organization"
             },
             "email": "morgane.vacher@univ-nantes.fr",
-            "familyName": "vacher",
-            "givenName": "morgane"
+            "familyName": "Vacher",
+            "givenName": "Morgane"
         },
         {
             "type": "Person",
@@ -20,8 +20,8 @@
                 "id": "https://ror.org/04ysg2a58",
                 "type": "Organization"
             },
-            "familyName": "delmas",
-            "givenName": "vincent"
+            "familyName": "Delmas",
+            "givenName": "Vincent"
         },
         {
             "id": "https://orcid.org/0000-0002-0959-1690",
@@ -31,8 +31,8 @@
                 "type": "Organization"
             },
             "email": "alessandro.nardi@univ-nantes.fr",
-            "familyName": "nardi",
-            "givenName": "alessandro "
+            "familyName": "Nardi",
+            "givenName": "Alessandro "
         },
         {
             "type": "Person",
@@ -52,8 +52,8 @@
                 "type": "Organization"
             },
             "email": "aymeric.blondel@univ-nantes.fr",
-            "familyName": "blondel",
-            "givenName": "aymreic"
+            "familyName": "Blondel",
+            "givenName": "Aymeric"
         }
     ],
     "codeRepository": "https://github.com/ceisammodes/DRed-MD.git",
